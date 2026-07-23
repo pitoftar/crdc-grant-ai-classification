@@ -4,6 +4,14 @@ import pandas as pd
 #classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
 df = pd.read_csv('crdc-single-encoder.csv', names=['code', 'division', 'group', 'class', 'subclass'])
 
+# enlever le header
+df.drop(index=df.index[0], axis=0, inplace=True)
+
+codes = df['code'].tolist()
+divisions = df['division'].unique()
+
+print(divisions)
+
 # Build enriched Group labels from FOR structure
 group_labels = {
     # "RDF301": "Basic medicine and life sciences — includes immunology, cancer biology, "
