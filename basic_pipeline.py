@@ -1,14 +1,15 @@
-# from transformers import pipeline
+#from transformers import pipeline
 import pandas as pd
 
 #classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-df = pd.read_csv('crdc-single-encoder.csv', names=['code', 'division', 'group', 'class', 'subclass'])
+df = pd.read_csv('./data/crdc-single-encoder.csv', names=['code', 'division', 'group', 'class', 'subclass'])
 
-# enlever le header
+# enlever la premiere ligne
 df.drop(index=df.index[0], axis=0, inplace=True)
 
+# stocker les divisions uniques dans un dictionnaire
 codes = df['code'].tolist()
-divisions = df['division'].unique()
+divisions = df.set_index('code')['division'].to_dict # je pense que ca serait ok si la colonne code etait exclusive a code division, p. ex. code_d, code_g, code_c, etc
 
 print(divisions)
 
