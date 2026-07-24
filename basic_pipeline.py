@@ -1,7 +1,7 @@
-#from transformers import pipeline
+from transformers import pipeline
 import pandas as pd
 
-#classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
 df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
 # enlever la premiere ligne
@@ -19,8 +19,12 @@ sous_classes = codes_uniques(df, 'code_sc', 'subclass')
 # donnees projets
 dtfrm = pd.read_csv("data/sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'])
 projets = dtfrm.T.to_dict().values()
+k = 'titre'
+titres = [projet.get(k) for projet in projets if k in projet]
 
-print(projets)
+for titre in titres:
+    resultat = classifier(titre, list(divisions.values()), multi_label=False)
+    print(resultat)
 
 # Build enriched Group labels from FOR structure
 group_labels = {
