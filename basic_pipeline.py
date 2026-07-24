@@ -2,16 +2,22 @@
 import pandas as pd
 
 #classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-df = pd.read_csv('./data/crdc-single-encoder.csv', names=['code', 'division', 'group', 'class', 'subclass'])
+df = pd.read_csv('./data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
 # enlever la premiere ligne
 df.drop(index=df.index[0], axis=0, inplace=True)
 
-# stocker les divisions uniques dans un dictionnaire
-codes = df['code'].tolist()
-divisions = df.set_index('code')['division'].to_dict # je pense que ca serait ok si la colonne code etait exclusive a code division, p. ex. code_d, code_g, code_c, etc
+# stocker les divisions et groupes uniques dans un dictionnaire
+def codes_uniques(dataframe, index, colonne):
+    return dataframe.set_index(index)[colonne].to_dict()
+
+divisions = codes_uniques(df, 'code_d', 'division')
+groupes = codes_uniques(df, 'code_g', 'group')
+classes = codes_uniques(df, 'code_c', 'class')
+sous_classes = codes_uniques(df, 'code_sc', 'subclass')
 
 print(divisions)
+print(groupes)
 
 # Build enriched Group labels from FOR structure
 group_labels = {
