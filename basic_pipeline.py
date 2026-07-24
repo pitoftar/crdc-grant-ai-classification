@@ -2,7 +2,7 @@
 import pandas as pd
 
 #classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-df = pd.read_csv('./data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
+df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
 # enlever la premiere ligne
 df.drop(index=df.index[0], axis=0, inplace=True)
@@ -16,8 +16,11 @@ groupes = codes_uniques(df, 'code_g', 'group')
 classes = codes_uniques(df, 'code_c', 'class')
 sous_classes = codes_uniques(df, 'code_sc', 'subclass')
 
-print(divisions)
-print(groupes)
+# donnees projets
+dtfrm = pd.read_csv("data/sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'])
+projets = dtfrm.T.to_dict().values()
+
+print(projets)
 
 # Build enriched Group labels from FOR structure
 group_labels = {
