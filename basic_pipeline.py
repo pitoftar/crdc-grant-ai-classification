@@ -22,6 +22,11 @@ projets = dtfrm.T.to_dict().values()
 k = 'titre'
 titres = [projet.get(k) for projet in projets if k in projet]
 
+resultats = {}
+
 for titre in titres:
-    resultat = classifier(titre, list(divisions.values()), multi_label=False)
-    print(resultat)
+    resultat = classifier(titre, list(divisions.values()), multi_label=True)
+    resultats.update(resultat)
+
+dump = pd.DataFrame.from_dict(resultats)
+pd.dump.to_csv('out/title_text_single_encoder.csv', sep=';', mode='w', quotechar='"')
