@@ -1,8 +1,9 @@
 from transformers import pipeline
 import pandas as pd
+import csv
 
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
+df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder','code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
 # enlever la premiere ligne
 df.drop(index=df.index[0], axis=0, inplace=True)
@@ -22,11 +23,12 @@ projets = dtfrm.T.to_dict().values()
 k = 'titre'
 titres = [projet.get(k) for projet in projets if k in projet]
 
-resultats = {}
+resultats = []
 
-for titre in titres:
+for i, titre in enumerate(titres):
     resultat = classifier(titre, list(divisions.values()), multi_label=True)
-    resultats.update(resultat)
+    resultats.append(resultat)
+    print(f"Grant #{i+1} DONE")
 
 dump = pd.DataFrame.from_dict(resultats)
-pd.dump.to_csv('out/title_text_single_encoder.csv', sep=';', mode='w', quotechar='"')
+dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"') # ajuster le titre en fonction du traitement de la classification
