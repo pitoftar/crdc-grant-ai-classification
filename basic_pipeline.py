@@ -18,7 +18,7 @@ classes = codes_uniques(df, 'code_c', 'class')
 sous_classes = codes_uniques(df, 'code_sc', 'subclass')
 
 # donnees projets
-dtfrm = pd.read_csv("data/sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'])
+dtfrm = pd.read_csv("data/smaller_sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'])
 projets = dtfrm.T.to_dict().values()
 k = 'titre'
 titres = [projet.get(k) for projet in projets if k in projet]
