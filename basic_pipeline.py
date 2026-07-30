@@ -1,14 +1,24 @@
+# --- preambule ---
+
 from transformers import pipeline
 import pandas as pd
 import csv
 
+# pipeline pour classification
+
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+
+# --- donnees projets ---
+
 df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
-# enlever la premiere ligne
+# si le csv comporte des titres, enlever la premiere ligne du df
+# pour eviter de contaminer les donnees
+
 df.drop(index=df.index[0], axis=0, inplace=True)
 
 # stocker les divisions et groupes uniques dans un dictionnaire
+
 def codes_uniques(dataframe, index, colonne):
     """Renvoie un dictionnaire a partir d'un dataframe sous
     la forme {index: colonne}.
@@ -20,10 +30,9 @@ groupes = codes_uniques(df, 'code_g', 'group')
 classes = codes_uniques(df, 'code_c', 'class')
 sous_classes = codes_uniques(df, 'code_sc', 'subclass')
 
-# donnees projets
-# initialiser liste des titres seuls
-# initialiser liste des titres avec comites entre parenthese
-# (le cas echeant)
+# initialiser liste des titres seuls et initialiser liste des
+# titres avec comites entre parenthese (le cas echeant)
+
 dtfrm = pd.read_csv("data/smaller_sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'])
 
 projets = list(dtfrm.T.to_dict().values())
@@ -40,10 +49,12 @@ for projet in projets:
     else:
         titres_comites.append(f'{projet[k]} ({projet[c]})')
 
-# classification des projets selon la division
+# --- classification des projets selon la division ---
 
 resultats = []
 resultats_df = pd.DataFrame([])
+
+# passage dans le classificateur
 
 for i, titre in enumerate(titres_comites):
     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
@@ -82,5 +93,7 @@ classification_division = classification_division.reindex(columns=colonnes)
 
 print(classification_division)
 
+# ajuster le titre du document de sortie en fonction du traitement de la classification
+
 # dump = pd.DataFrame.from_dict(resultats)
-# dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"') # ajuster le titre en fonction du traitement de la classification
+# dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"')
