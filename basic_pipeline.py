@@ -19,24 +19,35 @@ sous_classes = codes_uniques(df, 'code_sc', 'subclass')
 
 # donnees projets
 dtfrm = pd.read_csv("data/smaller_sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'])
-projets = dtfrm.T.to_dict().values()
+
+projets = list(dtfrm.T.to_dict().values())
 k = 'titre'
+c = 'comite_en'
 titres = [projet.get(k) for projet in projets if k in projet]
 
-resultats = []
+titres_comites = []
+for projet in projets:
+    if projet[c] is None:
+        titres_comites.append(projet[k])
+    else:
+        titres_comites.append(f'{projet[k]} ({projet[c]})')
 
-for i, titre in enumerate(titres):
-    resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
-    resultats.append(resultat)
-    print(f"Grant #{i+1} DONE")
 
-for resultat in resultats:
-    for k, v in resultat.items():
-        if isinstance(v, list):
-            for idx, val in enumerate(v, start=1):
-                print(f"{k} {idx} : {val}")
-        else:
-            print(f"{k} : {v}")
+# resultats = []
+
+# for i, titre in enumerate(titres):
+#     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
+#     resultats.append(resultat)
+#     print(f"Grant #{i+1} DONE")
+
+
+# for resultat in resultats:
+#     for k, v in resultat.items():
+#         if isinstance(v, list):
+#             for idx, val in enumerate(v, start=1):
+#                 print(f"{k} {idx} : {val}")
+#         else:
+#             print(f"{k} : {v}")
 
 # dump = pd.DataFrame.from_dict(resultats)
 # dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"') # ajuster le titre en fonction du traitement de la classification
