@@ -24,11 +24,13 @@ k = 'titre'
 titres = [projet.get(k) for projet in projets if k in projet]
 
 resultats = []
+resultats_df = pd.DataFrame([])
 
 for i, titre in enumerate(titres):
     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
     resultats.append(resultat)
+    rangee = resultat # plus de transformations seront necessaires pour associer les indices et les descripteurs
+    resultats_df.loc[len(resultats_df)] = rangee
     print(f"Grant #{i+1} DONE")
 
-dump = pd.DataFrame.from_dict(resultats)
-dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"') # ajuster le titre en fonction du traitement de la classification
+resultats_df.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"') # ajuster le titre en fonction du traitement de la classification
