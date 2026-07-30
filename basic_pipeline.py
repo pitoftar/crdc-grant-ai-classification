@@ -30,5 +30,13 @@ for i, titre in enumerate(titres):
     resultats.append(resultat)
     print(f"Grant #{i+1} DONE")
 
-dump = pd.DataFrame.from_dict(resultats)
-dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"') # ajuster le titre en fonction du traitement de la classification
+for resultat in resultats:
+    for k, v in resultat.items():
+        if isinstance(v, list):
+            for idx, val in enumerate(v, start=1):
+                print(f"{k} {idx} : {val}")
+        else:
+            print(f"{k} : {v}")
+
+# dump = pd.DataFrame.from_dict(resultats)
+# dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"') # ajuster le titre en fonction du traitement de la classification

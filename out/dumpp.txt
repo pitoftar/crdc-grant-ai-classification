@@ -1,4 +1,23 @@
 Grant #1 DONE
+Grant #2 DONE
+Grant #3 DONE
+Grant #4 DONE
+Grant #5 DONE
+Grant #6 DONE
+Grant #7 DONE
+Grant #8 DONE
+Grant #9 DONE
+Grant #10 DONE
+Grant #11 DONE
+Grant #12 DONE
+Grant #13 DONE
+Grant #14 DONE
+Grant #15 DONE
+Grant #16 DONE
+Grant #17 DONE
+Grant #18 DONE
+Grant #19 DONE
+Grant #20 DONE
 sequence : Quelles sont les mathématiques utilisées par les ingénieurs au quotidien? Une étude sur les pratiques des ingénieurs pour déterminer leurs besoins mathématiques
 labels 1 : Engineering and technology
 labels 2 : Medical, health and life sciences
@@ -12,7 +31,6 @@ scores 3 : 0.09303618967533112
 scores 4 : 0.08734160661697388
 scores 5 : 0.07661674916744232
 scores 6 : 0.05189618095755577
-Grant #2 DONE
 sequence : High-tech paper: Security printing and the aesthetics of trust
 labels 1 : Engineering and technology
 labels 2 : Social sciences
@@ -26,7 +44,6 @@ scores 3 : 0.13064046204090118
 scores 4 : 0.12596429884433746
 scores 5 : 0.07074932008981705
 scores 6 : 0.06569214910268784
-Grant #3 DONE
 sequence : Integrin Alpha8 is a novel mediator of T lymphocyte migration across the CNS barriers
 labels 1 : Medical, health and life sciences
 labels 2 : Engineering and technology
@@ -40,7 +57,6 @@ scores 3 : 0.17606985569000244
 scores 4 : 0.1008390560746193
 scores 5 : 0.04656102880835533
 scores 6 : 0.03287477791309357
-Grant #4 DONE
 sequence : Growing up trans: A qualitative, international, and longitudinal investigation of trans youth access to gender affirming medical care, gender affirmation and well-being
 labels 1 : Medical, health and life sciences
 labels 2 : Social sciences
@@ -54,7 +70,6 @@ scores 3 : 0.07802511006593704
 scores 4 : 0.06717021763324738
 scores 5 : 0.044952619820833206
 scores 6 : 0.04015157371759415
-Grant #5 DONE
 sequence : Programmable DNA-based switches and nanomachines for sensing and drug delivery applications
 labels 1 : Engineering and technology
 labels 2 : Medical, health and life sciences
@@ -68,7 +83,6 @@ scores 3 : 0.011287014931440353
 scores 4 : 0.010295605286955833
 scores 5 : 0.008403747342526913
 scores 6 : 0.007487485185265541
-Grant #6 DONE
 sequence : Interactions between attention, perception and reaching movements
 labels 1 : Social sciences
 labels 2 : Humanities and the arts
@@ -82,7 +96,6 @@ scores 3 : 0.17755208909511566
 scores 4 : 0.17741592228412628
 scores 5 : 0.09529964625835419
 scores 6 : 0.07502950727939606
-Grant #7 DONE
 sequence : Design and Management of Fog Networks
 labels 1 : Engineering and technology
 labels 2 : Natural sciences
@@ -96,7 +109,6 @@ scores 3 : 0.030977031216025352
 scores 4 : 0.013937749899923801
 scores 5 : 0.013792741112411022
 scores 6 : 0.01266731321811676
-Grant #8 DONE
 sequence : Polymer Porous Fibrous Structures with Antiviral Properties
 labels 1 : Engineering and technology
 labels 2 : Medical, health and life sciences
@@ -110,7 +122,6 @@ scores 3 : 0.07217920571565628
 scores 4 : 0.028076311573386192
 scores 5 : 0.02132451720535755
 scores 6 : 0.020066164433956146
-Grant #9 DONE
 sequence : L'art Noir: cartographies for an emerging field
 labels 1 : Humanities and the arts
 labels 2 : Medical, health and life sciences
@@ -124,7 +135,6 @@ scores 3 : 0.09637808799743652
 scores 4 : 0.08764740824699402
 scores 5 : 0.07997360080480576
 scores 6 : 0.052414894104003906
-Grant #10 DONE
 sequence : System Identification of Human Postural Control: A Multimodal Sensory Stimulation Approach for Diagnosing Balance Disorders
 labels 1 : Engineering and technology
 labels 2 : Medical, health and life sciences
@@ -138,7 +148,6 @@ scores 3 : 0.07207951694726944
 scores 4 : 0.05869993194937706
 scores 5 : 0.036099955439567566
 scores 6 : 0.024262692779302597
-Grant #11 DONE
 sequence : Transitioning patients with advanced chronic kidney disease to home or facility dialysis: understanding the experience and quality of life for patients and their caregivers (TRANSIT-CARE)
 labels 1 : Medical, health and life sciences
 labels 2 : Social sciences
@@ -152,7 +161,6 @@ scores 3 : 0.0621282160282135
 scores 4 : 0.054491255432367325
 scores 5 : 0.03999779373407364
 scores 6 : 0.03968271240592003
-Grant #12 DONE
 sequence : Tenrikyo and the Rise and Fall of New Religions in Japan
 labels 1 : Social sciences
 labels 2 : Natural sciences
@@ -166,7 +174,6 @@ scores 3 : 0.1479794979095459
 scores 4 : 0.13856543600559235
 scores 5 : 0.13685232400894165
 scores 6 : 0.1084664836525917
-Grant #13 DONE
 sequence : Systems biology of size control in eukaryotes
 labels 1 : Natural sciences
 labels 2 : Medical, health and life sciences
@@ -180,7 +187,6 @@ scores 3 : 0.04616300389170647
 scores 4 : 0.041142787784338
 scores 5 : 0.033775560557842255
 scores 6 : 0.029587706550955772
-Grant #14 DONE
 sequence : Drop-based microfluidics (DBM) for single cell studies and ultrahigh-throughput phenotypic screens and lab evolution
 labels 1 : Engineering and technology
 labels 2 : Medical, health and life sciences
@@ -194,7 +200,6 @@ scores 3 : 0.10634921491146088
 scores 4 : 0.05427497625350952
 scores 5 : 0.04793364182114601
 scores 6 : 0.04312678799033165
-Grant #15 DONE
 sequence : Neural repair in glaucoma: the role of insulin signaling
 labels 1 : Medical, health and life sciences
 labels 2 : Engineering and technology
@@ -208,7 +213,6 @@ scores 3 : 0.05042194575071335
 scores 4 : 0.018361305817961693
 scores 5 : 0.0114763667806983
 scores 6 : 0.010870820842683315
-Grant #16 DONE
 sequence : Impacts des mesures de protection contre la COVID-19 sur la communication des personnes malentendantes
 labels 1 : Medical, health and life sciences
 labels 2 : Engineering and technology
@@ -222,7 +226,6 @@ scores 3 : 0.12551581859588623
 scores 4 : 0.06950527429580688
 scores 5 : 0.06338348239660263
 scores 6 : 0.060421980917453766
-Grant #17 DONE
 sequence : Mixité sociale et scolaire en classe : perception des exigences professionnelles des étudiant·e·s en formation à l'enseignement au Québec et en Suisse
 labels 1 : Social sciences
 labels 2 : Engineering and technology
@@ -236,7 +239,6 @@ scores 3 : 0.06725354492664337
 scores 4 : 0.06234782934188843
 scores 5 : 0.04120698571205139
 scores 6 : 0.03809766471385956
-Grant #18 DONE
 sequence : Discharges at/near gas-liquid and liquid-liquid interfaces: fundamental investigation and application in liquid processing and nanomaterial synthesis
 labels 1 : Engineering and technology
 labels 2 : Natural sciences
@@ -250,7 +252,6 @@ scores 3 : 0.06111442297697067
 scores 4 : 0.04313281923532486
 scores 5 : 0.034769874066114426
 scores 6 : 0.03334399312734604
-Grant #19 DONE
 sequence : Fully-Lagrangian three-dimensional modelling of river ice jam initiation
 labels 1 : Engineering and technology
 labels 2 : Natural sciences
@@ -264,7 +265,6 @@ scores 3 : 0.08018346130847931
 scores 4 : 0.07931916415691376
 scores 5 : 0.03901408240199089
 scores 6 : 0.0385916642844677
-Grant #20 DONE
 sequence : Juger l'homosexualité, attribuer l'asile: le traitement des demandes d'asile OSIG au Canada
 labels 1 : Social sciences
 labels 2 : Humanities and the arts
