@@ -1,3 +1,4 @@
 .venv/
 .~lock.*
 .venv/bin .venv/include .venv/lib .venv/pyvenv.cfg .venv/share
+.DS_Store
