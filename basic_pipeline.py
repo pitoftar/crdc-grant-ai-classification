@@ -26,7 +26,7 @@ titres = [projet.get(k) for projet in projets if k in projet]
 resultats = []
 
 for i, titre in enumerate(titres):
-    resultat = classifier(titre, list(divisions.values()), multi_label=True)
+    resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
     resultats.append(resultat)
     print(f"Grant #{i+1} DONE")
 
