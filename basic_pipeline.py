@@ -3,13 +3,16 @@ import pandas as pd
 import csv
 
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder','code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
+df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
 # enlever la premiere ligne
 df.drop(index=df.index[0], axis=0, inplace=True)
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 def codes_uniques(dataframe, index, colonne):
+    """Renvoie un dictionnaire a partir d'un dataframe sous
+    la forme {index: colonne}.
+    """
     return dataframe.set_index(index)[colonne].to_dict()
 
 divisions = codes_uniques(df, 'code_d', 'division')
@@ -45,8 +48,6 @@ resultats_df = pd.DataFrame([])
 for i, titre in enumerate(titres_comites):
     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
     resultats.append(resultat)
-    rangee = resultat # plus de transformations seront necessaires pour associer les indices et les descripteurs
-    resultats_df.loc[len(resultats_df)] = rangee
     print(f"Grant #{i+1} DONE")
 
 output_net = []
@@ -66,6 +67,19 @@ with open('out/dump.txt', 'w') as f:
     f.close()
 
 classification_division = pd.DataFrame(output_net)
+
+colonnes = [
+    'sequence',
+    'labels 1', 'scores 1',
+    'labels 2', 'scores 2',
+    'labels 3', 'scores 3',
+    'labels 4', 'scores 4',
+    'labels 5', 'scores 5',
+    'labels 6', 'scores 6'
+    ]
+
+classification_division = classification_division.reindex(columns=colonnes)
+
 print(classification_division)
 
 # dump = pd.DataFrame.from_dict(resultats)
