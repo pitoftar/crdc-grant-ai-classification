@@ -2,6 +2,7 @@
 
 from transformers import pipeline
 import pandas as pd
+import numpy as np
 import csv
 
 # pipeline pour classification
@@ -10,12 +11,12 @@ classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnl
 
 # --- donnees projets ---
 
-df = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
+crdc = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
 # si le csv comporte des titres, enlever la premiere ligne du df
 # pour eviter de contaminer les donnees
 
-df.drop(index=df.index[0], axis=0, inplace=True)
+crdc.drop(index=crdc.index[0], axis=0, inplace=True)
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 
@@ -25,10 +26,11 @@ def codes_uniques(dataframe, index, colonne):
     """
     return dataframe.set_index(index)[colonne].to_dict()
 
-divisions = codes_uniques(df, 'code_d', 'division')
-groupes = codes_uniques(df, 'code_g', 'group')
-classes = codes_uniques(df, 'code_c', 'class')
-sous_classes = codes_uniques(df, 'code_sc', 'subclass')
+divisions = codes_uniques(crdc, 'code_d', 'division')
+divisions_inverse = codes_uniques(crdc, 'division', 'code_d')
+groupes = codes_uniques(crdc, 'code_g', 'group')
+classes = codes_uniques(crdc, 'code_c', 'class')
+sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
@@ -61,6 +63,8 @@ for i, titre in enumerate(titres_comites):
     resultats.append(resultat)
     print(f"Grant #{i+1} DONE")
 
+# deplier les listes dans le dictionnaire
+
 output_net = []
 
 for resultat in resultats:
@@ -68,28 +72,39 @@ for resultat in resultats:
     for k, v in resultat.items():
         if isinstance(v, list):
             for idx, val in enumerate(v, start=1):
-                rangee.update({f"{k} {idx}": val})
+                rangee.update({f"{k}_d_{idx}": val})
         else:
             rangee.update({k : v})
     output_net.append(rangee)
 
-with open('out/dump.txt', 'w') as f:
-    f.write(str(output_net))
-    f.close()
+# --- nettoyage des resultats ---
 
 classification_division = pd.DataFrame(output_net)
 
 colonnes = [
     'sequence',
-    'labels 1', 'scores 1',
-    'labels 2', 'scores 2',
-    'labels 3', 'scores 3',
-    'labels 4', 'scores 4',
-    'labels 5', 'scores 5',
-    'labels 6', 'scores 6'
+    'labels_d_1', 'scores_d_1',
+    'labels_d_2', 'scores_d_2',
+    'labels_d_3', 'scores_d_3',
+    'labels_d_4', 'scores_d_4',
+    'labels_d_5', 'scores_d_5',
+    'labels_d_6', 'scores_d_6'
     ]
 
 classification_division = classification_division.reindex(columns=colonnes)
+
+col_etiquettes = ['labels_d_1', 
+    'labels_d_2', 
+    'labels_d_3', 
+    'labels_d_4', 
+    'labels_d_5', 
+    'labels_d_6']
+
+for etiquette in col_etiquettes:
+    rdf_dif = etiquette.replace("labels", "code")
+
+    pos = classification_division.columns.get_loc(col_etiquettes) + 1 # erreur ici
+    classification_division.insert(pos, rdf_dif, classification_division[etiquette].map(divisions_inverse))
 
 print(classification_division)
 
