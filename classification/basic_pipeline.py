@@ -43,7 +43,7 @@ MINI = '../data/smaller_sample.csv'
 SAMPLE = '../data/sample.csv'
 FULL = '../data/projets_comites_complets-ENFR.csv'
 
-DATASET = SAMPLE # changer la source des données ici
+DATASET = FULL # changer la source des données ici
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
 
@@ -118,8 +118,8 @@ print(classification_division)
 
 now = datetime.now().strftime('%Y%m%d-%H%M')
 
-if not os.path.exists(f'../out/{MODEL}/'):
-    os.makedirs(f'../out/{MODEL}/')
+if not os.path.exists(f"../out/{re.sub('/', '-', MODEL)}/"):
+    os.makedirs(f"../out/{re.sub('/', '-', MODEL)}/")
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
 FINE_TUNING = 'raw' # raw sans fine-tuning, finet avec fine-tuning
