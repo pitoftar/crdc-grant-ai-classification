@@ -1,6 +1,7 @@
 # --- preambule ---
 
 import os
+import re
 from transformers import pipeline
 from datetime import datetime
 import pandas as pd
@@ -124,4 +125,4 @@ SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
 FINE_TUNING = 'raw' # raw sans fine-tuning, finet avec fine-tuning
 SCOPE = scope_map[DATASET]
 
-classification_division.to_csv(f'../out/{MODEL}/{now}_{SEQ}_{FINE_TUNING}_{SCOPE}.csv', sep=';', mode='w', quotechar='"')
+classification_division.to_csv(f"../out/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{SCOPE}.csv", sep=';', mode='w', quotechar='"')
