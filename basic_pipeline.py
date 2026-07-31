@@ -1,6 +1,7 @@
 # --- preambule ---
 
 from transformers import pipeline
+from datetime import datetime
 import pandas as pd
 import numpy as np
 import csv
@@ -35,7 +36,7 @@ sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
 
-dtfrm = pd.read_csv("data/smaller_sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'])
+dtfrm = pd.read_csv("data/sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'], na_values=['nan'])
 
 projets = list(dtfrm.T.to_dict().values())
 k = 'titre'
@@ -46,7 +47,7 @@ titres = [projet.get(k) for projet in projets if k in projet]
 titres_comites = []
 
 for projet in projets:
-    if projet[c] is None:
+    if projet[c] is None or 'nan':
         titres_comites.append(projet[k])
     else:
         titres_comites.append(f'{projet[k]} ({projet[c]})')
@@ -54,7 +55,6 @@ for projet in projets:
 # --- classification des projets selon la division ---
 
 resultats = []
-resultats_df = pd.DataFrame([])
 
 # passage dans le classificateur
 
@@ -93,22 +93,18 @@ colonnes = [
 
 classification_division = classification_division.reindex(columns=colonnes)
 
-col_etiquettes = ['labels_d_1', 
-    'labels_d_2', 
-    'labels_d_3', 
-    'labels_d_4', 
-    'labels_d_5', 
-    'labels_d_6']
+col_etiquettes = ['labels_d_1', 'labels_d_2', 'labels_d_3', 'labels_d_4', 
+    'labels_d_5', 'labels_d_6']
 
 for etiquette in col_etiquettes:
     rdf_dif = etiquette.replace("labels", "code")
-
-    pos = classification_division.columns.get_loc(col_etiquettes) + 1 # erreur ici
-    classification_division.insert(pos, rdf_dif, classification_division[etiquette].map(divisions_inverse))
+    position = classification_division.columns.get_loc(etiquette) # erreur ici
+    classification_division.insert(position, rdf_dif, classification_division[etiquette].map(divisions_inverse))
 
 print(classification_division)
 
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
-# dump = pd.DataFrame.from_dict(resultats)
-# dump.to_csv('out/facebook-bart-large-mnli.csv', sep=';', mode='w', quotechar='"')
+now = datetime.now().strftime('%Y%m%d-%H%H')
+
+classification_division.to_csv(f'out/facebook-bart-large-mnli/{now}_tc_sample.csv', sep=';', mode='w', quotechar='"')
