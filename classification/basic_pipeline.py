@@ -1,5 +1,6 @@
 # --- preambule ---
 
+import os
 from transformers import pipeline
 from datetime import datetime
 import pandas as pd
@@ -8,11 +9,12 @@ import csv
 
 # pipeline pour classification
 
-classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+MODEL = 'facebook/bart-large-mnli'
+classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
 
-crdc = pd.read_csv('data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
+crdc = pd.read_csv('../data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
 
 # si le csv comporte des titres, enlever la premiere ligne du df
 # pour eviter de contaminer les donnees
@@ -36,7 +38,15 @@ sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
 
-dtfrm = pd.read_csv("data/sample.csv", sep=';', names=['comite_en', 'comite_fr', 'titre'], na_values=['nan'])
+MINI = '../data/smaller_sample.csv'
+SAMPLE = '../data/sample.csv'
+FULL = '../data/projets_comites_complets-ENFR.csv'
+
+DATASET = SAMPLE # changer la source des données ici
+
+scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
+
+dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'], na_values=['nan'])
 
 projets = list(dtfrm.T.to_dict().values())
 k = 'titre'
@@ -105,6 +115,13 @@ print(classification_division)
 
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
-now = datetime.now().strftime('%Y%m%d-%H%H')
+now = datetime.now().strftime('%Y%m%d-%H%M')
 
-classification_division.to_csv(f'out/facebook-bart-large-mnli/{now}_tc_sample.csv', sep=';', mode='w', quotechar='"')
+if not os.path.exists(f'../out/{MODEL}/'):
+    os.makedirs(f'../out/{MODEL}/')
+
+SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
+FINE_TUNING = 'raw' # raw sans fine-tuning, finet avec fine-tuning
+SCOPE = scope_map[DATASET]
+
+classification_division.to_csv(f'../out/{MODEL}/{now}_{SEQ}_{FINE_TUNING}_{SCOPE}.csv', sep=';', mode='w', quotechar='"')
