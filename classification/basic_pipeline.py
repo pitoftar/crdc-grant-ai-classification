@@ -37,6 +37,9 @@ groupes_inverse = codes_uniques(crdc, 'group', 'code_g')
 classes = codes_uniques(crdc, 'code_c', 'class')
 sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
+crdc_div = {code: discipline for code, discipline in crdc.groupby('division')}
+print(crdc_div)
+
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
 
@@ -44,7 +47,7 @@ MINI = '../data/smaller_sample.csv'
 SAMPLE = '../data/sample.csv'
 FULL = '../data/projets_comites_complets-ENFR.csv'
 
-DATASET = FULL # changer la source des données ici
+DATASET = MINI # changer la source des données ici
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
 
