@@ -10,22 +10,21 @@ Cette tache comporte certaines limitations :
 
 ### Limiter la classification
 
-- 
+- Dans tous les cas, il faut faire la classification au complet. C'est au moment de l'affichage des resultats que l'on limite
+- Utiliser 
 
 ### Division et groupe
 
 C'est peut-etre l'etape la plus simple.
-
-#### Avec un dictionnaire
-
-#### Avec un dataframe
 
 - Operer la classification selon la division comme d'habitude
     - Les resultats sont stockes dans une liste de dictionnaire (`resultats_division`) mais ne contiennent _que le string_ et pas le code
     - Le jeu de donnees `crdc-full-encoder` est deja charge dans un dataframe (`crdc`)
 - Creer un sous-ensemble de groupes en fonction de leur classification
     - Segmenter le dataframe d'apres la valeur de la colonne ~~`code_d` ou~~ `division`
-    - 
+    - Transformer chacun des df en dictionnaire
+    - Faire un check pour determiner la valeur de l'item de la liste de la clef `labels` a la position 1
+    - Attribuer un dictionnaire de groupes a sonder en fonction de ce resultat
 
 
 ### Integrer division a groupe
