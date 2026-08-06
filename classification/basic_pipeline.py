@@ -70,6 +70,8 @@ resultats_division = []
 
 # passage dans le classificateur
 
+# definir des fonctions ici
+
 for i, titre in enumerate(titres_comites):
     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
     resultats_division.append(resultat)
@@ -102,13 +104,9 @@ for resultat in resultats_division:
 classification_division = pd.DataFrame(output_net)
 
 colonnes = [
-    'sequence',
-    'labels_d_1', 'scores_d_1',
-    'labels_d_2', 'scores_d_2',
-    'labels_d_3', 'scores_d_3',
-    'labels_d_4', 'scores_d_4',
-    'labels_d_5', 'scores_d_5',
-    'labels_d_6', 'scores_d_6'
+    'sequence', 'labels_d_1', 'scores_d_1', 'labels_d_2', 'scores_d_2',
+    'labels_d_3', 'scores_d_3', 'labels_d_4', 'scores_d_4',
+    'labels_d_5', 'scores_d_5', 'labels_d_6', 'scores_d_6'
     ]
 
 classification_division = classification_division.reindex(columns=colonnes)
@@ -117,9 +115,9 @@ col_etiquettes = ['labels_d_1', 'labels_d_2', 'labels_d_3', 'labels_d_4',
     'labels_d_5', 'labels_d_6']
 
 for etiquette in col_etiquettes:
-    rdf_dif = etiquette.replace("labels", "code")
-    position = classification_division.columns.get_loc(etiquette) # erreur ici
-    classification_division.insert(position, rdf_dif, classification_division[etiquette].map(divisions_inverse))
+    nouvelle_col = etiquette.replace("labels", "code") # probablement pas la meilleure facon de faire
+    position = classification_division.columns.get_loc(etiquette)
+    classification_division.insert(position, nouvelle_col, classification_division[etiquette].map(divisions_inverse))
 
 print(classification_division)
 

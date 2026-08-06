@@ -26,7 +26,6 @@ C'est peut-etre l'etape la plus simple.
     - Faire un check pour determiner la valeur de l'item de la liste de la clef `labels` a la position 1
     - Attribuer un dictionnaire de groupes a sonder en fonction de ce resultat
 
-
 ### Integrer division a groupe
 
 Combien de codes de division est-ce qu'on veut garder? On pourrait evidemment penser a un threshold a partir duquel on en garde plus d'un, mais ca compliquerait les choses pour l'affichage, et il ne me semble pas strictement necessaire d'inclure une boucle la ou on n'en a pas vraiment besoin.
