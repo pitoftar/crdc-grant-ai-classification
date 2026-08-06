@@ -109,7 +109,7 @@ col_etiquettes = ['labels_d_1', 'labels_d_2', 'labels_d_3', 'labels_d_4',
 
 for etiquette in col_etiquettes:
     rdf_dif = etiquette.replace("labels", "code")
-    position = classification_division.columns.get_loc(etiquette) # erreur ici
+    position = classification_division.columns.get_loc(etiquette)
     classification_division.insert(position, rdf_dif, classification_division[etiquette].map(divisions_inverse))
 
 print(classification_division)
