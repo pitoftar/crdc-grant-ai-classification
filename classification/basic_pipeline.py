@@ -31,8 +31,9 @@ def codes_uniques(dataframe, index, colonne):
     return dataframe.set_index(index)[colonne].to_dict()
 
 divisions = codes_uniques(crdc, 'code_d', 'division')
-divisions_inverse = codes_uniques(crdc, 'division', 'code_d')
+divisions_inverse = codes_uniques(crdc, 'division', 'code_d') # il y a surement un moyen de renverser un dictionnaire k:v en v:k
 groupes = codes_uniques(crdc, 'code_g', 'group')
+groupes_inverse = codes_uniques(crdc, 'group', 'code_g')
 classes = codes_uniques(crdc, 'code_c', 'class')
 sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
@@ -47,7 +48,7 @@ DATASET = FULL # changer la source des données ici
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
 
-dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'], na_values=['nan'])
+dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'])
 
 projets = list(dtfrm.T.to_dict().values())
 k = 'titre'
@@ -58,27 +59,35 @@ titres = [projet.get(k) for projet in projets if k in projet]
 titres_comites = []
 
 for projet in projets:
-    if projet[c] is None or 'nan':
+    if projet[c] is None:
         titres_comites.append(projet[k])
     else:
         titres_comites.append(f'{projet[k]} ({projet[c]})')
 
 # --- classification des projets selon la division ---
 
-resultats = []
+resultats_division = []
 
 # passage dans le classificateur
 
 for i, titre in enumerate(titres_comites):
     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
-    resultats.append(resultat)
+    resultats_division.append(resultat)
     print(f"Grant #{i+1} DONE")
+
+# classification groupe (a froid)
+
+resultats_groupes = []
+
+for i, titre in enumerate(titres_comites):
+    resultat_groupe = classifier(titre, list(groupes.values()), multi_label=True)
+    resultats_groupes.append(resultat_groupe)
 
 # deplier les listes dans le dictionnaire
 
 output_net = []
 
-for resultat in resultats:
+for resultat in resultats_division:
     rangee = {}
     for k, v in resultat.items():
         if isinstance(v, list):
