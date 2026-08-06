@@ -47,7 +47,7 @@ DATASET = FULL # changer la source des données ici
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
 
-dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'], na_values=['nan'])
+dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'])
 
 projets = list(dtfrm.T.to_dict().values())
 k = 'titre'
@@ -58,7 +58,7 @@ titres = [projet.get(k) for projet in projets if k in projet]
 titres_comites = []
 
 for projet in projets:
-    if projet[c] is None or 'nan':
+    if projet[c] is None:
         titres_comites.append(projet[k])
     else:
         titres_comites.append(f'{projet[k]} ({projet[c]})')
