@@ -30,6 +30,22 @@ def codes_uniques(dataframe, index, colonne):
     """
     return dataframe.set_index(index)[colonne].to_dict()
 
+# fonction simple pour obtenir une liste de valeurs uniques
+# d'apres des colonnes dans un dictionnaire de dataframes
+# Source - https://stackoverflow.com/a/66912198
+# Posted by Daniel Warfield et modifie
+# Retrieved 2026-08-08, License - CC BY-SA 4.0
+
+def liste_colonne(dictionnaire, colonne):
+    """Retourne une liste des valeurs contenues
+    dans la colonne specifiee par la variable "colonne"
+    au travers d'un dictionnaire de dataframes specifie par
+    la variable "dictionnaire"
+    """
+    for clef, valeur in dictionnaire.items():
+        dictionnaire[clef] = valeur[colonne].unique().tolist()
+    return dictionnaire
+
 divisions = codes_uniques(crdc, 'code_d', 'division')
 divisions_inverse = codes_uniques(crdc, 'division', 'code_d') # il y a surement un moyen de renverser un dictionnaire k:v en v:k
 groupes = codes_uniques(crdc, 'code_g', 'group')
@@ -38,7 +54,12 @@ classes = codes_uniques(crdc, 'code_c', 'class')
 sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
 crdc_div = {code: discipline for code, discipline in crdc.groupby('division')}
-print(crdc_div)
+
+aaa = liste_colonne(crdc_div, 'group')
+
+print(aaa) # fonctionne, il faut regler les nan
+
+raise SystemExit
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
@@ -73,24 +94,16 @@ resultats_division = []
 
 # passage dans le classificateur
 
-# definir des fonctions ici
+# definir des fonctions de classification ici
 
 for i, titre in enumerate(titres_comites):
     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
     resultats_division.append(resultat)
     print(f"Grant #{i+1} DONE")
 
-# classification groupe (a froid)
-
-resultats_groupes = []
-
-for i, titre in enumerate(titres_comites):
-    resultat_groupe = classifier(titre, list(groupes.values()), multi_label=True)
-    resultats_groupes.append(resultat_groupe)
-
 # deplier les listes dans le dictionnaire
 
-output_net = []
+output_div_net = []
 
 for resultat in resultats_division:
     rangee = {}
@@ -100,11 +113,29 @@ for resultat in resultats_division:
                 rangee.update({f"{k}_d_{idx}": val})
         else:
             rangee.update({k : v})
-    output_net.append(rangee)
+    output_div_net.append(rangee)
+
+# classification groupe (a froid)
+
+for resultat in resultats_division:
+    labels = resultat['labels']
+    division_probable = labels[0]
+    scores = resultat['scores']
+    numero_1 = scores[0]
+    print(f"Pour {resultat['sequence']}, la division la plus probable est {division_probable} (certitude de {round(numero_1 * 100, 2)}%).")
+
+raise SystemExit
+
+resultats_groupes = []
+
+for i, titre in enumerate(titres_comites):
+    resultat_groupe = classifier(titre, list(groupes.values()), multi_label=True)
+    resultats_groupes.append(resultat_groupe)
+
 
 # --- nettoyage des resultats ---
 
-classification_division = pd.DataFrame(output_net)
+classification_division = pd.DataFrame(output_div_net)
 
 colonnes = [
     'sequence', 'labels_d_1', 'scores_d_1', 'labels_d_2', 'scores_d_2',

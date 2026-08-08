@@ -26,6 +26,19 @@ C'est peut-etre l'etape la plus simple.
     - Faire un check pour determiner la valeur de l'item de la liste de la clef `labels` a la position 1
     - Attribuer un dictionnaire de groupes a sonder en fonction de ce resultat
 
+🦆 : La fonction `grouby` de pandas permet de generer un dictionnaire de dataframes en effectuant un regroupement (SQL-like) sur la base des valeurs d'une colonne en particulier.
+J'ai stocke ces six differents dataframes dans un dictionnaire (`crdc_div`). Cependant, quand j'imprime chaque valeur du dictionnaire dans un for loop, j'obtiens seulement la clef et non la valeur (le dataframe).
+
+🦆 : Je suis un peu coince avec le dictionnaire de dfs et je ne sais pas comment le gerer. Je dois ecrire une fonction qui
+1) verifie la valeur de l'element a la position 0 dans la liste de resultats presentes sous la clef 'labels' pour chaque dictionnaire
+2) verifie dans quel dataframe cette valeur est presente
+3) fait une liste des groupes de ce dataframe
+4) integre cette liste a la fonction `classifier()`
+
+Ca bloque a l'etape 2, parce que les dataframes sont agreges dans un dictionnaire de dfs ou la clef est le label textuel et la valeur est le df en tant que tel.
+Il faudrait probablement revoir cette methode de division des dfs. Actuellement, j'utilise la fonction `groupby()` pour diviser le dataframe. Qu'est-ce que je veux? Une liste de dicts? Un dict de listes de dicts?
+Ce que je veux, c'est une liste des valeurs uniques dans une certaine colonne de chacun des df dans le dict. Je dois donc appliquer la meme operation a tous les dfs du dict.
+
 ### Integrer division a groupe
 
 Combien de codes de division est-ce qu'on veut garder? On pourrait evidemment penser a un threshold a partir duquel on en garde plus d'un, mais ca compliquerait les choses pour l'affichage, et il ne me semble pas strictement necessaire d'inclure une boucle la ou on n'en a pas vraiment besoin.
