@@ -11,7 +11,7 @@ import csv
 # pipeline pour classification
 
 MODEL = 'facebook/bart-large-mnli'
-classifier = pipeline("zero-shot-classification", model=MODEL)
+# classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
 
@@ -33,17 +33,22 @@ def codes_uniques(dataframe, index, colonne):
 # fonction simple pour obtenir une liste de valeurs uniques
 # d'apres des colonnes dans un dictionnaire de dataframes
 # Source - https://stackoverflow.com/a/66912198
-# Posted by Daniel Warfield et modifie
+# Posted by Daniel Warfield et modifie par ASA
 # Retrieved 2026-08-08, License - CC BY-SA 4.0
 
 def liste_colonne(dictionnaire, colonne):
-    """Retourne une liste des valeurs contenues
-    dans la colonne specifiee par la variable "colonne"
-    au travers d'un dictionnaire de dataframes specifie par
-    la variable "dictionnaire"
+    """Retourne, sous la forme d'un dictionnaire,
+    les valeurs contenues dans la colonne specifiee
+    par la variable "colonne" au travers d'un dictionnaire
+    de dataframes specifie par la variable "dictionnaire".
+    Les dictionnaires retournes ne comportent pas de valeurs
+    nulles.
     """
     for clef, valeur in dictionnaire.items():
         dictionnaire[clef] = valeur[colonne].unique().tolist()
+    for k in dictionnaire:
+        valeur = dictionnaire[k]
+        valeur = [valeur for valeur in dictionnaire if str(valeur != 'nan')]
     return dictionnaire
 
 divisions = codes_uniques(crdc, 'code_d', 'division')
@@ -55,9 +60,10 @@ sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
 crdc_div = {code: discipline for code, discipline in crdc.groupby('division')}
 
-aaa = liste_colonne(crdc_div, 'group')
+groupes_par_div = liste_colonne(crdc_div, 'group')
 
-print(aaa) # fonctionne, il faut regler les nan
+print(groupes_par_div) # fonctionne, il faut regler les nan
+print(f"{groupes_par_div['Agricultural and veterinary sciences']}\nType: {type(groupes_par_div['Agricultural and veterinary sciences'])}")
 
 raise SystemExit
 
@@ -83,7 +89,7 @@ titres = [projet.get(k) for projet in projets if k in projet]
 titres_comites = []
 
 for projet in projets:
-    if projet[c] is None:
+    if str(projet[c]) == 'nan':
         titres_comites.append(projet[k])
     else:
         titres_comites.append(f'{projet[k]} ({projet[c]})')
