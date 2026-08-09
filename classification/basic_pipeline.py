@@ -46,24 +46,24 @@ def liste_colonne(dictionnaire, colonne):
     """
     for clef, valeur in dictionnaire.items():
         dictionnaire[clef] = valeur[colonne].unique().tolist()
-    for k in dictionnaire:
-        valeur = dictionnaire[k]
-        valeur = [valeur for valeur in dictionnaire if str(valeur != 'nan')]
     return dictionnaire
 
 divisions = codes_uniques(crdc, 'code_d', 'division')
-divisions_inverse = codes_uniques(crdc, 'division', 'code_d') # il y a surement un moyen de renverser un dictionnaire k:v en v:k
+divisions_inverse = codes_uniques(crdc, 'division', 'code_d')
 groupes = codes_uniques(crdc, 'code_g', 'group')
 groupes_inverse = codes_uniques(crdc, 'group', 'code_g')
 classes = codes_uniques(crdc, 'code_c', 'class')
 sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
-crdc_div = {code: discipline for code, discipline in crdc.groupby('division')}
+crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('division')}
 
+# dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 groupes_par_div = liste_colonne(crdc_div, 'group')
 
-print(groupes_par_div) # fonctionne, il faut regler les nan
-print(f"{groupes_par_div['Agricultural and veterinary sciences']}\nType: {type(groupes_par_div['Agricultural and veterinary sciences'])}")
+enqueteur = [k for k, v in groupes_par_div.items() if any(x != x for x in v)]
+
+print(groupes_par_div)
+print(enqueteur)
 
 raise SystemExit
 
@@ -74,7 +74,8 @@ MINI = '../data/smaller_sample.csv'
 SAMPLE = '../data/sample.csv'
 FULL = '../data/projets_comites_complets-ENFR.csv'
 
-DATASET = MINI # changer la source des données ici
+"""↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓"""
+DATASET = MINI
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
 
@@ -105,7 +106,7 @@ resultats_division = []
 for i, titre in enumerate(titres_comites):
     resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
     resultats_division.append(resultat)
-    print(f"Grant #{i+1} DONE")
+    print(f"Grant #{i+1} division-level DONE")
 
 # deplier les listes dans le dictionnaire
 
@@ -123,12 +124,23 @@ for resultat in resultats_division:
 
 # classification groupe (a froid)
 
-for resultat in resultats_division:
+resultats_groupe_limite_par_div = []
+
+for i, resultat in enumerate(resultats_division):
     labels = resultat['labels']
     division_probable = labels[0]
     scores = resultat['scores']
     numero_1 = scores[0]
-    print(f"Pour {resultat['sequence']}, la division la plus probable est {division_probable} (certitude de {round(numero_1 * 100, 2)}%).")
+    titre = resultat['sequence']
+    resultat_g = classifier(titre, groupes_par_div[division_probable], multi_label=True)
+    labels_g = resultat_g['labels']
+    groupe_probable = labels_g[0]
+    scores_g = resultat_g['scores']
+    g_numero_1 = scores_g[0]
+    resultats_groupe_limite_par_div.append(resultat_g)
+    print(f"Pour {resultat['sequence']}:\n\tLa division la plus probable est {division_probable} (certitude de {round(numero_1 * 100, 2)}%)\n\t\tLe groupe le plus probable est {groupe_probable} (certitude de {round(g_numero_1 * 100, 2)})")
+
+print(resultats_groupe_limite_par_div)
 
 raise SystemExit
 
