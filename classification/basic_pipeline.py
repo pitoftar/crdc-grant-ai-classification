@@ -2,11 +2,14 @@
 
 import os
 import re
+import logging
 from transformers import pipeline
 from datetime import datetime
 import pandas as pd
 import numpy as np
 import csv
+
+logger = logging.getLogger(__name__)
 
 # pipeline pour classification
 
@@ -25,12 +28,17 @@ crdc = pd.read_csv(
         'division', 
         'group', 
         'class', 
-        'subclass'])
+        'subclass']
+    )
 
 # si le csv comporte des titres, enlever la premiere ligne du df
 # pour eviter de contaminer les donnees
 
-crdc.drop(index=crdc.index[0], axis=0, inplace=True)
+crdc.drop(
+    index=crdc.index[0],
+    axis=0,
+    inplace=True
+)
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 
@@ -46,13 +54,11 @@ def codes_uniques(dataframe, index, colonne):
 # Posted by Daniel Warfield et modifie par ASA
 # Retrieved 2026-08-08, License - CC BY-SA 4.0
 
-def liste_colonne(dictionnaire, colonne):
+def liste_colonne(dictionnaire: dict, colonne) -> dict:
     """Retourne, sous la forme d'un dictionnaire,
     les valeurs contenues dans la colonne specifiee
     par la variable "colonne" au travers d'un dictionnaire
     de dataframes specifie par la variable "dictionnaire".
-    Les dictionnaires retournes ne comportent pas de valeurs
-    nulles.
     """
     for clef, valeur in dictionnaire.items():
         dictionnaire[clef] = valeur[colonne].unique().tolist()
@@ -66,6 +72,86 @@ classes = codes_uniques(crdc, 'code_c', 'class')
 sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
 crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('division')}
+
+# fonction pour rendre les resultats plus manipulables
+
+def offload_dans_dict(liste_dicts_de_resultats: list, NIVEAU: str) -> list:
+    """A partir d'une liste de dictionnaires obtenus comme
+    resultats de la fonction classifier(), retourne une liste
+    de dictionnaires ou les paires clef/valeurs sont des tuples (str, str).
+
+    La variable "liste_dicts_de_resultats" fournie a la fonction
+    correspond a une liste de dictionnaire structuree comme suit:
+        [{sequence: str, labels: [], scores: []},
+        {sequence: str, labels: [], scores: []}...].
+
+    La variable "NIVEAU" est un string qui traduit le niveau
+    de classification afin d'identifier les variables adequatement
+    (e.g. 'div', 'gr', etc.). Il alimente la nomenclature des clefs
+    (p.ex si NIVEAU='gr', les variables seront associees aux clefs
+    labels_gr_1, labels_gr_2 ... labels_gr_n).
+    """
+    liste = []
+
+    for resultat in liste_dicts_de_resultats:
+        rangee = {}
+        for k, v in resultat.items():
+            if isinstance(v, list):
+                for idx, val in enumerate(v, start=1):
+                    rangee.update({f"{k}_{NIVEAU}_{idx}": val})
+            else:
+                rangee.update({k : v})
+        liste.append(rangee)
+
+    return liste
+
+# fonction de classification simple (non-limitee par le niveau superieur)
+
+def classificateur_simple(
+    sequences: list,
+    categories,
+    multi_label_bool: bool=False) -> list:
+
+    """Retourne une liste de dictionnaires de resultats tires d'une
+    variante simple de la fonction classifier() de transformers.
+
+    La variable "sequences" fournie a la fonction est une liste de
+    strings a classifier.
+
+    La variable "categories" est une liste des classes a associer aux
+    sequences OU un dictionnaire ou les valeurs representent les
+    classes a associer aux sequences.
+
+    La variable "multi_label_bool" est un booleen (valeur par defaut = False)
+    qui indique si les probabilites doivent etre softmaxees
+    individuellement entre les categories (plusieurs categories
+    possibles, True) ou qu'elles doivent equivaloir a un total de
+    1 (une seule categorie possible).
+    """
+
+    liste = []
+
+    if isinstance(categories, list):
+        cat = categories
+    elif isinstance(categories, dict):
+        cat = list(categories.values())
+    else:
+        raise Exception("La variable 'categories' doit etre une liste ou un dictionnaire.")
+        # ou gerer avec logger?
+
+    for i, seq in enumerate(sequences):
+
+        resultat = classifier(
+            seq,
+            cat,
+            multi_label=multi_label_bool
+        )
+
+        liste.append(resultat)
+
+        logger.info(f"Grant #{i+1} {categories} classification DONE")
+    
+    return liste
 
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 groupes_par_div = liste_colonne(crdc_div, 'group')
@@ -100,32 +186,22 @@ for projet in projets:
 
 # --- classification des projets selon la division ---
 
-resultats_division = []
-
 # passage dans le classificateur
 
-# definir des fonctions de classification ici
-
-for i, titre in enumerate(titres_comites):
-    resultat = classifier(titre, list(divisions.values()), multi_label=False) # multilabel false pour la classification au niveau de la division
-    resultats_division.append(resultat)
-    print(f"Grant #{i+1} division-level DONE")
+resultats_division = classificateur_simple(
+    sequences=titres_comites,
+    categories=divisions,
+    multi_label_bool=False
+)
 
 # deplier les listes dans le dictionnaire
 
-output_div_net = []
+output_div_net = offload_dans_dict(
+    liste_dicts_de_resultats=resultats_division,
+    NIVEAU='div'
+)
 
-for resultat in resultats_division:
-    rangee = {}
-    for k, v in resultat.items():
-        if isinstance(v, list):
-            for idx, val in enumerate(v, start=1):
-                rangee.update({f"{k}_d_{idx}": val})
-        else:
-            rangee.update({k : v})
-    output_div_net.append(rangee)
-
-# classification groupe (a froid)
+# classification groupes limitee
 
 resultats_groupe_limite_par_div = []
 
@@ -139,25 +215,20 @@ for i, resultat in enumerate(resultats_division):
     groupe_probable = resultat_gr['labels'][0]
     score_gr_no_1 = resultat_gr['scores'][0]
     resultats_groupe_limite_par_div.append(resultat_gr)
+    print(f"Grant #{i+1} limited group-level DONE")
 
-    print(f"Grant #{i+1} group-level DONE")
-    print((f"Pour {resultat_gr['sequence']}:\n\tLa division la plus probable est {division_probable} "
-        f"(certitude de {round(score_div_no_1 * 100, 2)}%)\n"
-        f"\t\tLe groupe le plus probable est {groupe_probable} "
-        f"(certitude de {round(score_gr_no_1 * 100, 2)}%)."))
+# classification groupes totale
 
-print(resultats_groupe_limite_par_div)
+resultats_groupes = classificateur_simple(
+    sequences=titres_comites,
+    categories=groupes,
+    multi_label_bool=True
+)
 
-raise SystemExit
-
-
-
-resultats_groupes = []
-
-for i, titre in enumerate(titres_comites):
-    resultat_groupe = classifier(titre, list(groupes.values()), multi_label=True)
-    resultats_groupes.append(resultat_groupe)
-
+output_gr_net = offload_dans_dict(
+    liste_dicts_de_resultats=resultats_groupes,
+    NIVEAU='gr'
+)
 
 # --- nettoyage des resultats ---
 

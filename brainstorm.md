@@ -10,6 +10,8 @@ Je pense que la maniere de faire preferable serait de declarer plusieurs fonctio
 Par contre, je ne suis pas certain d'ou les inscrire: dans le meme programme ou dans d'autres programmes externes que j'appelle depuis le premier? Je ne connais pas les bonnes pratiques pythonesques, il faudrait que je me renseigne la-dessus.
 Actuellement, je trouve que mon script est en train de devenir plutot long et de moins en moins lisible.
 
+Par contre, c'est fatiguant de definir des fonctions et je suis paresseux pour l'instant.
+
 ## Classification par groupes
 
 En plus de la classification par divisions, il faut aussi operer une classification sur la base du groupe (43 choix).
