@@ -11,7 +11,7 @@ import csv
 # pipeline pour classification
 
 MODEL = 'facebook/bart-large-mnli'
-# classifier = pipeline("zero-shot-classification", model=MODEL)
+classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
 
@@ -61,11 +61,6 @@ crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('divi
 groupes_par_div = liste_colonne(crdc_div, 'group')
 
 enqueteur = [k for k, v in groupes_par_div.items() if any(x != x for x in v)]
-
-print(groupes_par_div)
-print(enqueteur)
-
-raise SystemExit
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
@@ -138,7 +133,8 @@ for i, resultat in enumerate(resultats_division):
     scores_g = resultat_g['scores']
     g_numero_1 = scores_g[0]
     resultats_groupe_limite_par_div.append(resultat_g)
-    print(f"Pour {resultat['sequence']}:\n\tLa division la plus probable est {division_probable} (certitude de {round(numero_1 * 100, 2)}%)\n\t\tLe groupe le plus probable est {groupe_probable} (certitude de {round(g_numero_1 * 100, 2)})")
+    print(f"Grant #{i+1} group-level DONE")
+    print(f"Pour {resultat['sequence']}:\n\tLa division la plus probable est {division_probable} (certitude de {round(numero_1 * 100, 2)}%)\n\t\tLe groupe le plus probable est {groupe_probable} (certitude de {round(g_numero_1 * 100, 2)}%).")
 
 print(resultats_groupe_limite_par_div)
 

@@ -1,3 +1,7 @@
+## Hypotheses generales
+
+Acuite plus basse sans les comites.
+
 ## Classification par groupes
 
 En plus de la classification par divisions, il faut aussi operer une classification sur la base du groupe (43 choix).
@@ -38,6 +42,34 @@ J'ai stocke ces six differents dataframes dans un dictionnaire (`crdc_div`). Cep
 Ca bloque a l'etape 2, parce que les dataframes sont agreges dans un dictionnaire de dfs ou la clef est le label textuel et la valeur est le df en tant que tel.
 Il faudrait probablement revoir cette methode de division des dfs. Actuellement, j'utilise la fonction `groupby()` pour diviser le dataframe. Qu'est-ce que je veux? Une liste de dicts? Un dict de listes de dicts?
 Ce que je veux, c'est une liste des valeurs uniques dans une certaine colonne de chacun des df dans le dict. Je dois donc appliquer la meme operation a tous les dfs du dict.
+
+🦆 : J'ai reussi a come up avec un loop qui fonctionne pour faire les etapes 1 a 4. Le probleme, maintenant, c'est que je n'arrive pas a me debarasser des nan, ni dans les noms de comites, ni dans les divisions, donc certains projets sont evalues comme 'nan'.
+J'ai essaye plusieurs methodes a l'interieur de la boucle :
+
+```
+for k in dictionnaire:
+    valeur = dictionnaire[k]
+    valeur = [valeur for valeur in dictionnaire if str(valeur) != 'nan']
+```
+
+```
+for k in dictionnaire:
+    valeur = dictionnaire[k]
+    valeur = [valeur for valeur in dictionnaire if valeur is not None]
+```
+
+```
+for k in dictionnaire:
+    valeur = dictionnaire[k]
+    valeur = [valeur for valeur in dictionnaire if not valeur != valeur]
+```
+
+Rien ne marche.
+J'ai aussi essaye plusieurs methodes pour retirer les nan des valeurs du dictionnaire apres son passage dans la fonction. J'ai par exemple essaye de le convertir en df avec `groupes_par_div = pd.DataFrame(groupes_par_div).dropna().to_dict('list')`, mais ca lance une erreur selon laquelle `All arrays must be of the same length`. Je ne peux donc pas repasser par un df.
+Je ne suis pas certain du type de nan. Je pense que je devrais les gerer en amont, dans pandas, avec le df, parce que ce ne sont pas tout a fait les valeurs `None` natives a Python.
+
+J'ai essaye d'appliquer `crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('division')}` au moment de creer le dictionnaire de valeurs par colonne.
+Ca fonctionne.
 
 ### Integrer division a groupe
 
