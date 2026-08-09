@@ -10,12 +10,22 @@ import csv
 
 # pipeline pour classification
 
-MODEL = 'facebook/bart-large-mnli'
+MODEL = 'MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7'
 classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
 
-crdc = pd.read_csv('../data/crdc-full-encoder.csv', names=['single_encoder', 'code_d', 'code_g', 'code_c', 'code_sc', 'division' ,'group', 'class', 'subclass'])
+crdc = pd.read_csv(
+    '../data/crdc-full-encoder.csv',
+    names=['single_encoder',
+        'code_d',
+        'code_g',
+        'code_c', 
+        'code_sc',
+        'division', 
+        'group', 
+        'class', 
+        'subclass'])
 
 # si le csv comporte des titres, enlever la premiere ligne du df
 # pour eviter de contaminer les donnees
@@ -60,8 +70,6 @@ crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('divi
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 groupes_par_div = liste_colonne(crdc_div, 'group')
 
-enqueteur = [k for k, v in groupes_par_div.items() if any(x != x for x in v)]
-
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
 
@@ -69,7 +77,7 @@ MINI = '../data/smaller_sample.csv'
 SAMPLE = '../data/sample.csv'
 FULL = '../data/projets_comites_complets-ENFR.csv'
 
-"""↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓"""
+"""/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
 DATASET = MINI
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
@@ -122,23 +130,27 @@ for resultat in resultats_division:
 resultats_groupe_limite_par_div = []
 
 for i, resultat in enumerate(resultats_division):
-    labels = resultat['labels']
-    division_probable = labels[0]
-    scores = resultat['scores']
-    numero_1 = scores[0]
+    division_probable = resultat['labels'][0]
+    score_div_no_1 = resultat['scores'][0]
     titre = resultat['sequence']
-    resultat_g = classifier(titre, groupes_par_div[division_probable], multi_label=True)
-    labels_g = resultat_g['labels']
-    groupe_probable = labels_g[0]
-    scores_g = resultat_g['scores']
-    g_numero_1 = scores_g[0]
-    resultats_groupe_limite_par_div.append(resultat_g)
+
+    resultat_gr = classifier(titre, groupes_par_div[division_probable], multi_label=True)
+
+    groupe_probable = resultat_gr['labels'][0]
+    score_gr_no_1 = resultat_gr['scores'][0]
+    resultats_groupe_limite_par_div.append(resultat_gr)
+
     print(f"Grant #{i+1} group-level DONE")
-    print(f"Pour {resultat['sequence']}:\n\tLa division la plus probable est {division_probable} (certitude de {round(numero_1 * 100, 2)}%)\n\t\tLe groupe le plus probable est {groupe_probable} (certitude de {round(g_numero_1 * 100, 2)}%).")
+    print((f"Pour {resultat_gr['sequence']}:\n\tLa division la plus probable est {division_probable} "
+        f"(certitude de {round(score_div_no_1 * 100, 2)}%)\n"
+        f"\t\tLe groupe le plus probable est {groupe_probable} "
+        f"(certitude de {round(score_gr_no_1 * 100, 2)}%)."))
 
 print(resultats_groupe_limite_par_div)
 
 raise SystemExit
+
+
 
 resultats_groupes = []
 

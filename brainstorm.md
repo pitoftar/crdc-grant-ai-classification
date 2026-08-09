@@ -2,6 +2,14 @@
 
 Acuite plus basse sans les comites.
 
+## Organisation generale des fichiers
+
+Je n'ai pas actuellement mes documents Obsidian ou j'avais precisement documente ceci, mais je me demande comment organiser mes fichiers pour effectuer les diverses taches. J'ai plusieurs versions d'un meme programme qui font toutes a peu pres la meme chose, mais pas exactement.
+
+Je pense que la maniere de faire preferable serait de declarer plusieurs fonctions pour effectuer toutes ces taches.
+Par contre, je ne suis pas certain d'ou les inscrire: dans le meme programme ou dans d'autres programmes externes que j'appelle depuis le premier? Je ne connais pas les bonnes pratiques pythonesques, il faudrait que je me renseigne la-dessus.
+Actuellement, je trouve que mon script est en train de devenir plutot long et de moins en moins lisible.
+
 ## Classification par groupes
 
 En plus de la classification par divisions, il faut aussi operer une classification sur la base du groupe (43 choix).
