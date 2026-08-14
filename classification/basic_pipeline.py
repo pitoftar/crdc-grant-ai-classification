@@ -306,6 +306,25 @@ colonnes = [
     'labels_d_5', 'scores_d_5', 'labels_d_6', 'scores_d_6'
     ]
 
+div_top_3 = structurer_resultats(
+    resultats_classification=resultats_division,
+    dict_idu=divisions_inverse,
+    limite=3,
+    NIVEAU='div'
+)
+
+groupes_top_5 = structurer_resultats(
+    resultats_classification=resultats_groupes,
+    dict_idu=groupes_inverse,
+    limite=5,
+    NIVEAU='gr')
+
+merged_datfra = div_top_3.merge(groupes_top_5, on='sequence')
+
+raise SystemExit
+
+# bug a partir de quelque part ici
+
 classification_division = classification_division.reindex(columns=colonnes)
 
 col_etiquettes = ['labels_d_1', 'labels_d_2', 'labels_d_3', 'labels_d_4', 
