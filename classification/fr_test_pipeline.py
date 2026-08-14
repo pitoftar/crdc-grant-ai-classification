@@ -4,13 +4,14 @@ import os
 import re
 from transformers import pipeline
 from datetime import datetime
+from ftlangdetect import detect
 import pandas as pd
-import numpy as np
+# import numpy as np
 import csv
 
 # pipeline pour classification
 
-MODEL = 'facebook/bart-large-mnli'
+MODEL = 'MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7'
 classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
@@ -43,7 +44,7 @@ MINI = '../data/smaller_sample.csv'
 SAMPLE = '../data/sample.csv'
 FULL = '../data/projets_comites_complets-ENFR.csv'
 
-DATASET = FULL # changer la source des données ici
+DATASET = SAMPLE # changer la source des données ici
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
 
@@ -51,17 +52,30 @@ dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'],
 
 projets = list(dtfrm.T.to_dict().values())
 k = 'titre'
-c = 'comite_en'
+cf = 'comite_fr'
 
 titres = [projet.get(k) for projet in projets if k in projet]
+
+titres_fr = []
+titres_en = []
+
+for titre in titres:
+    langue = detect(titre, low_memory=True)
+    if 'fr' in langue['lang']:
+        titres_fr.append(titre)
+    if 'en' in langue['lang']:
+        titres_en.append(titre)
+
+print(f'{len(titres_fr)} projets en francais et {len(titres_en)} projets en anglais')
 
 titres_comites = []
 
 for projet in projets:
-    if not projet[c]:
-        titres_comites.append(projet[k])
-    else:
-        titres_comites.append(f'{projet[k]} ({projet[c]})')
+    if projet[k] in titres_fr:
+        if not projet[cf]:
+            titres_comites.append(projet[k])
+        else:
+            titres_comites.append(f'{projet[k]} ({projet[cf]})')
 
 # --- classification des projets selon la division ---
 
@@ -123,7 +137,6 @@ if not os.path.exists(f"../out/{re.sub('/', '-', MODEL)}/"):
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
 FINE_TUNING = 'raw' # raw sans fine-tuning, finet avec fine-tuning
-LEVEL = 'div' # div pour division, gr pour groupe, divgr pour groupe d'apres division
 SCOPE = scope_map[DATASET]
 
-classification_division.to_csv(f"../out/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv", sep=';', mode='w', quotechar='"')
+classification_division.to_csv(f"../out/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{SCOPE}FR.csv", sep=';', mode='w', quotechar='"')
