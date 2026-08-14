@@ -10,10 +10,12 @@ import numpy as np
 import csv
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
+
 
 # pipeline pour classification
 
-MODEL = 'MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7'
+MODEL = 'cross-encoder/nli-deberta-v3-base'
 classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
@@ -42,10 +44,14 @@ crdc.drop(
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 
-def codes_uniques(dataframe, index, colonne):
+def codes_uniques(
+    dataframe: pd.DataFrame,
+    index,
+    colonne) -> dict:
     """Renvoie un dictionnaire a partir d'un dataframe sous
-    la forme {index: colonne}.
+    la forme {index: colonne} en purgeant les entrees vides.
     """
+    dataframe = dataframe.dropna()
     return dataframe.set_index(index)[colonne].to_dict()
 
 # fonction simple pour obtenir une liste de valeurs uniques
@@ -54,7 +60,9 @@ def codes_uniques(dataframe, index, colonne):
 # Posted by Daniel Warfield et modifie par ASA
 # Retrieved 2026-08-08, License - CC BY-SA 4.0
 
-def liste_colonne(dictionnaire: dict, colonne) -> dict:
+def liste_colonne(
+    dictionnaire: dict,
+    colonne: str) -> dict:
     """Retourne, sous la forme d'un dictionnaire,
     les valeurs contenues dans la colonne specifiee
     par la variable "colonne" au travers d'un dictionnaire
@@ -75,7 +83,9 @@ crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('divi
 
 # fonction pour rendre les resultats plus manipulables
 
-def offload_dans_dict(liste_dicts_de_resultats: list, NIVEAU: str) -> list:
+def offload_dans_dict(
+    liste_dicts_de_resultats: list,
+    NIVEAU: str) -> list:
     """A partir d'une liste de dictionnaires obtenus comme
     resultats de la fonction classifier(), retourne une liste
     de dictionnaires ou les paires clef/valeurs sont des tuples (str, str).
@@ -149,9 +159,59 @@ def classificateur_simple(
 
         liste.append(resultat)
 
-        logger.info(f"Grant #{i+1} {categories} classification DONE")
+        logger.info(f"Grant #{i+1} classification DONE")
+        # ajouter logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
+        # a def main() pour creer document de log
     
     return liste
+
+def structurer_resultats(
+    resultats_classification: list[dict],
+    dict_idu: dict,
+    limite: int,
+    NIVEAU=None) -> pd.DataFrame:
+    """Retourne un dataframe avec les colonnes organisees
+    selon l'identifiant unique, la categorie et le score.
+
+    La variable 'resultats_classification' est une liste de dicts
+    resultant de la fonction classifier() de HuggingFace, ou chaque
+    dict est compose des clefs {sequence: str, labels: [], scores: []}.
+
+    La variable 'dict_idu' represente les categories du CCRD
+    sous forme de dictionnaire "inverse", c'est-a-dire que le
+    code unique et la description textuelle sont organisees sous
+    le format {description: clef}.
+
+    La variable 'limite' est un chiffre pour limiter le nombre
+    de categories inscrites dans le dataframe.
+
+    La variable "NIVEAU" est un string qui traduit le niveau
+    de classification afin d'identifier les variables adequatement
+    (e.g. 'div', 'gr', etc.). Il alimente la nomenclature des clefs
+    (p.ex si NIVEAU='gr', les variables seront associees aux clefs
+    label_gr_1, label_gr_2 ... label_gr_n). Elle est facultative.
+    """
+
+    rangees = []
+
+    prefixe = f"{NIVEAU}_" if NIVEAU else ''
+
+    for resultat in resultats_classification:
+        rangee = {"sequence": resultat["sequence"]}
+
+        for rang, (categorie, score) in enumerate(zip(resultat["labels"], resultat["scores"]), start=1):
+            if rang > limite:
+                break
+            rangee[f"code_{prefixe}{rang}"] = dict_idu[categorie]
+            rangee[f"label_{prefixe}{rang}"] = categorie
+            rangee[f"score_{prefixe}{rang}"] = score
+
+        rangees.append(rangee)
+    
+    return pd.DataFrame(rangees)
+
+# fonction pour classificateur externe a determiner
+# def classificateur_complexe():
 
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 groupes_par_div = liste_colonne(crdc_div, 'group')
@@ -201,6 +261,8 @@ output_div_net = offload_dans_dict(
     NIVEAU='div'
 )
 
+print(f'OUTPUT DIVISIONS NET:\n{output_div_net}\n')
+
 # classification groupes limitee
 
 resultats_groupe_limite_par_div = []
@@ -225,10 +287,14 @@ resultats_groupes = classificateur_simple(
     multi_label_bool=True
 )
 
+print(f"RESULTATS GROUPES:\n{resultats_groupes}\n")
+
 output_gr_net = offload_dans_dict(
     liste_dicts_de_resultats=resultats_groupes,
     NIVEAU='gr'
 )
+
+print(f"OUTPUT GROUPES NET:\n{output_gr_net}\n")
 
 # --- nettoyage des resultats ---
 
@@ -264,4 +330,9 @@ FINE_TUNING = 'raw' # raw sans fine-tuning, finet avec fine-tuning
 LEVEL = 'div' # div pour division, gr pour groupe, divgr pour groupe d'apres division
 SCOPE = scope_map[DATASET]
 
-classification_division.to_csv(f"../out/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv", sep=';', mode='w', quotechar='"')
+classification_division.to_csv(
+    f"../out/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
+    sep=';',
+    mode='w',
+    quotechar='"'
+)
