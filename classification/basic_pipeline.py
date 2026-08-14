@@ -58,7 +58,7 @@ titres = [projet.get(k) for projet in projets if k in projet]
 titres_comites = []
 
 for projet in projets:
-    if projet[c] is None or 'nan':
+    if not projet[c]:
         titres_comites.append(projet[k])
     else:
         titres_comites.append(f'{projet[k]} ({projet[c]})')
