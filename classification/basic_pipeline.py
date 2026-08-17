@@ -216,52 +216,6 @@ def classificateur_complexe(
 
     return liste
 
-def classificateur_makeshift_finetuned(
-    sequences: list,
-    categories,
-    multi_label_bool: bool=False) -> list:
-
-    """Retourne une liste de dictionnaires de resultats tires d'une
-    variante simple de la fonction classifier() de transformers.
-
-    La variable "sequences" fournie a la fonction est une liste de
-    strings a classifier.
-
-    La variable "categories" est une liste des classes a associer aux
-    sequences OU un dictionnaire ou les valeurs representent les
-    classes a associer aux sequences.
-
-    La variable "multi_label_bool" est un booleen (valeur par defaut = False)
-    qui indique si les probabilites doivent etre softmaxees
-    individuellement entre les categories (plusieurs categories
-    possibles, True) ou qu'elles doivent equivaloir a un total de
-    1 (une seule categorie possible).
-    """
-
-    liste = []
-
-    if isinstance(categories, list):
-        cat = categories
-    elif isinstance(categories, dict):
-        cat = list(categories.values())
-    else:
-        raise Exception("La variable 'categories' doit etre une liste ou un dictionnaire.")
-        # ou gerer avec logger?
-
-    for i, seq in enumerate(sequences):
-
-        resultat = classifier(
-            seq,
-            cat,
-            multi_label=multi_label_bool
-        )
-
-        liste.append(resultat)
-
-        logger.info(f"Grant #{i+1} fine-tuned classification DONE")
-    
-    return liste
-
 def structurer_resultats(
     resultats_classification: list[dict],
     dict_idu: dict,
@@ -393,7 +347,7 @@ div_top_3 = structurer_resultats(
 )
 
 groupes_top_5 = structurer_resultats(
-    resultats_classification=resultats_groupes,
+    resultats_classification=resultats_groupe_limite_par_div,
     dict_idu=groupes_inverse,
     limite=5,
     NIVEAU='gr')
@@ -410,7 +364,7 @@ if not os.path.exists(f"../out/{re.sub('/', '-', MODEL)}/"):
     os.makedirs(f"../out/{re.sub('/', '-', MODEL)}/")
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
-FINE_TUNING = 'raw' # raw sans fine-tuning, finet avec fine-tuning
+FINE_TUNING = 'ltd' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
 LEVEL = 'gr' # div pour division, gr pour groupe, divgr pour groupe d'apres division
 SCOPE = scope_map[DATASET]
 
