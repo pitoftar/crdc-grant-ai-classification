@@ -84,7 +84,6 @@ sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('division')}
 crdc_gr = {code: discipline for code, discipline in crdc.dropna().groupby('group')}
 crdc_cls = {code: discipline for code, discipline in crdc.dropna().groupby('class')}
-crdc_subcls = {code: discipline for code, discipline in crdc.dropna().groupby('subclass')}
 
 # fonction pour rendre les resultats plus manipulables
 
@@ -194,7 +193,7 @@ def classificateur_complexe(
     sont une liste des categories inferieures, p. ex. :
         'Social sciences': ['Psychology and cognitive sciences', 'Economics and
         business administration', 'Education', 'Sociology and related studies', ...],
-    potentiellement issue de la fonction liste_colonnes().
+    potentiellement issue de la fonction liste_colonne().
 
     La variable "multi_label_bool" est un booleen (valeur par defaut = True)
     qui indique si les probabilites doivent etre softmaxees
@@ -315,6 +314,8 @@ def structurer_resultats(
 
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 groupes_par_div = liste_colonne(crdc_div, 'group')
+cls_par_gr = liste_colonne(crdc_gr, 'class')
+subcls_par_cls = liste_colonne(crdc_cls, 'subclass')
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
