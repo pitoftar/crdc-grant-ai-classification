@@ -10,11 +10,11 @@ import numpy as np
 import csv
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
+logger.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
 
 # pipeline pour classification
 
-MODEL = 'cross-encoder/nli-deberta-v3-base'
+MODEL = 'MoritzLaurer/ModernBERT-large-zeroshot-v2.0'
 classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
