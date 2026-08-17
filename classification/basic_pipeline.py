@@ -364,19 +364,11 @@ output_div_net = offload_dans_dict(
 
 # classification groupes limitee
 
-resultats_groupe_limite_par_div = []
-
-for i, resultat in enumerate(resultats_division):
-    division_probable = resultat['labels'][0]
-    score_div_no_1 = resultat['scores'][0]
-    titre = resultat['sequence']
-
-    resultat_gr = classifier(titre, groupes_par_div[division_probable], multi_label=True)
-
-    groupe_probable = resultat_gr['labels'][0]
-    score_gr_no_1 = resultat_gr['scores'][0]
-    resultats_groupe_limite_par_div.append(resultat_gr)
-    print(f"Grant #{i+1} limited group-level DONE")
+resultats_groupe_limite_par_div = classificateur_complexe(
+    resultats=resultats_division,
+    categories=groupes_par_div,
+    multi_label_bool=True
+)
 
 # classification groupes totale
 
@@ -392,14 +384,6 @@ output_gr_net = offload_dans_dict(
 )
 
 # --- nettoyage des resultats ---
-
-classification_division = pd.DataFrame(output_div_net)
-
-# colonnes = [
-#     'sequence', 'labels_d_1', 'scores_d_1', 'labels_d_2', 'scores_d_2',
-#     'labels_d_3', 'scores_d_3', 'labels_d_4', 'scores_d_4',
-#     'labels_d_5', 'scores_d_5', 'labels_d_6', 'scores_d_6'
-#     ]
 
 div_top_3 = structurer_resultats(
     resultats_classification=resultats_division,
@@ -418,20 +402,6 @@ merged_datfra = div_top_3.merge(groupes_top_5, on='sequence')
 
 # raise SystemExit
 
-# bug a partir de quelque part ici
-
-# classification_division = classification_division.reindex(columns=colonnes)
-
-# col_etiquettes = ['labels_d_1', 'labels_d_2', 'labels_d_3', 'labels_d_4', 
-#     'labels_d_5', 'labels_d_6']
-
-# for etiquette in col_etiquettes:
-#     nouvelle_col = etiquette.replace("labels", "code") # probablement pas la meilleure facon de faire
-#     position = classification_division.columns.get_loc(etiquette)
-#     classification_division.insert(position, nouvelle_col, classification_division[etiquette].map(divisions_inverse))
-
-# print(classification_division)
-
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
 now = datetime.now().strftime('%Y%m%d-%H%M')
@@ -441,7 +411,7 @@ if not os.path.exists(f"../out/{re.sub('/', '-', MODEL)}/"):
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
 FINE_TUNING = 'raw' # raw sans fine-tuning, finet avec fine-tuning
-LEVEL = 'div' # div pour division, gr pour groupe, divgr pour groupe d'apres division
+LEVEL = 'gr' # div pour division, gr pour groupe, divgr pour groupe d'apres division
 SCOPE = scope_map[DATASET]
 
 merged_datfra.to_csv(
