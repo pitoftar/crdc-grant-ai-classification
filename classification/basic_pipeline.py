@@ -82,6 +82,9 @@ classes = codes_uniques(crdc, 'code_c', 'class')
 sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
 crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('division')}
+crdc_gr = {code: discipline for code, discipline in crdc.dropna().groupby('group')}
+crdc_cls = {code: discipline for code, discipline in crdc.dropna().groupby('class')}
+crdc_subcls = {code: discipline for code, discipline in crdc.dropna().groupby('subclass')}
 
 # fonction pour rendre les resultats plus manipulables
 
@@ -181,10 +184,17 @@ def classificateur_complexe(
     division 'Social sciences' (RDF50), le script ne considerera que
     les groupes appartenant a cette division (RDF50X).
 
-    La variable "resultats" est une liste de dictionnaires issue de
-    la fonction classificateur_simple().
+    La variable "resultats" fournie a la fonction
+    correspond a une liste de dictionnaire structuree comme suit:
+        [{sequence: str, labels: [], scores: []},
+        {sequence: str, labels: [], scores: []}...].
 
-    La variable "categories" est un dictionnaire 
+    La variable "categories" est un dictionnaire ou chaque clef est
+    la representation textuelle de la categorie superieure et les valeurs
+    sont une liste des categories inferieures, p. ex. :
+        'Social sciences': ['Psychology and cognitive sciences', 'Economics and
+        business administration', 'Education', 'Sociology and related studies', ...],
+    potentiellement issue de la fonction liste_colonnes().
 
     La variable "multi_label_bool" est un booleen (valeur par defaut = True)
     qui indique si les probabilites doivent etre softmaxees
@@ -193,21 +203,19 @@ def classificateur_complexe(
     1 (une seule categorie possible).
     """
 
-    resultats_groupe_limite_par_div = []
+    liste = []
 
-    for i, resultat in enumerate(resultats_division):
-        division_probable = resultat['labels'][0]
-        score_div_no_1 = resultat['scores'][0]
+    for i, resultat in enumerate(resultats):
+        categorie_probable = resultat['labels'][0]
+        score_cat_no_1 = resultat['scores'][0]
         titre = resultat['sequence']
 
-        resultat_gr = classifier(titre, groupes_par_div[division_probable], multi_label=True)
+        resultat_precis = classifier(titre, categories[categorie_probable], multi_label=multi_label_bool)
 
-        groupe_probable = resultat_gr['labels'][0]
-        score_gr_no_1 = resultat_gr['scores'][0]
-        resultats_groupe_limite_par_div.append(resultat_gr)
-        print(f"Grant #{i+1} limited group-level DONE")
+        liste.append(resultat_precis)
+        logger.info(f"Grant #{i+1} limited group-level DONE")
 
-    return 
+    return liste
 
 def classificateur_makeshift_finetuned(
     sequences: list,
