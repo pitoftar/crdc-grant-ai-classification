@@ -10,7 +10,7 @@ import numpy as np
 import csv
 
 logger = logging.getLogger(__name__)
-logger.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
+logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
 
 # pipeline pour classification
 
@@ -85,7 +85,7 @@ crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('divi
 crdc_gr = {code: discipline for code, discipline in crdc.dropna().groupby('group')}
 crdc_cls = {code: discipline for code, discipline in crdc.dropna().groupby('class')}
 
-# fonction pour rendre les resultats plus manipulables
+# fonction pour rendre les resultats plus manipulables (actuellement pas utilisee)
 
 def offload_dans_dict(
     liste_dicts_de_resultats: list,
@@ -165,7 +165,7 @@ def classificateur_simple(
 
         liste.append(resultat)
 
-        logger.info(f"Grant #{i+1} classification DONE")
+        logger.info(f"Grant #{i+1} classification DONE\t\t\t{seq}")
         # ajouter logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
         # a def main() pour creer document de log
     
@@ -205,14 +205,14 @@ def classificateur_complexe(
     liste = []
 
     for i, resultat in enumerate(resultats):
-        categorie_probable = resultat['labels'][0]
+        categorie_probable = resultat['labels'][0] # bug ici : string indices must be integers
         score_cat_no_1 = resultat['scores'][0]
         titre = resultat['sequence']
 
-        resultat_precis = classifier(titre, categories[categorie_probable], multi_label=multi_label_bool)
+        resultat_limite = classifier(titre, categories[categorie_probable], multi_label=multi_label_bool)
 
-        liste.append(resultat_precis)
-        logger.info(f"Grant #{i+1} limited group-level DONE")
+        liste.append(resultat_limite)
+        logger.info(f"Grant #{i+1} limited group-level DONE\t\t\t{titre}")
 
     return liste
 
@@ -220,7 +220,8 @@ def structurer_resultats(
     resultats_classification: list[dict],
     dict_idu: dict,
     limite: int,
-    NIVEAU=None) -> pd.DataFrame:
+    NIVEAU: str = None) -> pd.DataFrame:
+
     """Retourne un dataframe avec les colonnes organisees
     selon l'identifiant unique, la categorie et le score.
 
@@ -266,6 +267,83 @@ def structurer_resultats(
     
     return pd.DataFrame(rangees)
 
+# --- fonctions de classification de plus haut niveau ---
+
+def classification_sauvage(): # potentiellement customiser davantage
+    # classification division
+
+    premier_niveau = classificateur_simple(
+        sequences=titres_comites,
+        categories=divisions,
+        multi_label_bool=False
+    )
+
+    # classification groupe
+
+    deuxieme_niveau = classificateur_simple(
+        sequences=titres_comites,
+        categories=groupes,
+        multi_label_bool=True
+    )
+
+    # top 3 div top 5 gr
+
+    top_n_premier_niveau = structurer_resultats(
+        resultats_classification=premier_niveau,
+        dict_idu=divisions_inverse,
+        limite=3,
+        NIVEAU='div'
+    )
+
+    top_n_deuxieme_niveau = structurer_resultats(
+        resultats_classification=deuxieme_niveau,
+        dict_idu=groupes_inverse,
+        limite=5,
+        NIVEAU='div'
+    )
+
+    resultat_final = top_n_deuxieme_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+
+    return resultat_final
+
+def classification_limitee():
+    # classification division
+
+    premier_niveau = classificateur_simple(
+        sequences=titres_comites,
+        categories=divisions,
+        multi_label_bool=False
+    )
+
+    # classification groupe
+
+    deuxieme_niveau = classificateur_complexe(
+        resultats=titres_comites,
+        categories=groupes_par_div,
+        multi_label_bool=True
+    )
+
+    # top 1 div top 3 gr
+
+    top_n_premier_niveau = structurer_resultats(
+        resultats_classification=premier_niveau,
+        dict_idu=divisions_inverse,
+        limite=1,
+        NIVEAU='div'
+    )
+
+    top_n_deuxieme_niveau = structurer_resultats(
+        resultats_classification=deuxieme_niveau,
+        dict_idu=groupes_inverse,
+        limite=3,
+        NIVEAU='div'
+    )
+
+    resultat_final = top_n_deuxieme_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+
+    return resultat_final
+
+
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 groupes_par_div = liste_colonne(crdc_div, 'group')
 cls_par_gr = liste_colonne(crdc_gr, 'class')
@@ -303,56 +381,47 @@ for projet in projets:
 
 # passage dans le classificateur
 
-resultats_division = classificateur_simple(
-    sequences=titres_comites,
-    categories=divisions,
-    multi_label_bool=False
-)
+merged_datfra = classification_limitee() # runner un debug la-dessus
 
-# deplier les listes dans le dictionnaire
+# resultats_division = classificateur_simple(
+#     sequences=titres_comites,
+#     categories=divisions,
+#     multi_label_bool=False
+# )
 
-output_div_net = offload_dans_dict(
-    liste_dicts_de_resultats=resultats_division,
-    NIVEAU='div'
-)
+# # classification groupes limitee
 
-# classification groupes limitee
+# resultats_groupe_limite_par_div = classificateur_complexe(
+#     resultats=resultats_division,
+#     categories=groupes_par_div,
+#     multi_label_bool=True
+# )
 
-resultats_groupe_limite_par_div = classificateur_complexe(
-    resultats=resultats_division,
-    categories=groupes_par_div,
-    multi_label_bool=True
-)
+# # classification groupes totale
 
-# classification groupes totale
+# resultats_groupes = classificateur_simple(
+#     sequences=titres_comites,
+#     categories=groupes,
+#     multi_label_bool=True
+# )
 
-resultats_groupes = classificateur_simple(
-    sequences=titres_comites,
-    categories=groupes,
-    multi_label_bool=True
-)
+# # --- nettoyage des resultats ---
 
-output_gr_net = offload_dans_dict(
-    liste_dicts_de_resultats=resultats_groupes,
-    NIVEAU='gr'
-)
+# div_top_3 = structurer_resultats(
+#     resultats_classification=resultats_division,
+#     dict_idu=divisions_inverse,
+#     limite=3,
+#     NIVEAU='div'
+# )
 
-# --- nettoyage des resultats ---
+# groupes_top_5 = structurer_resultats(
+#     resultats_classification=resultats_groupe_limite_par_div,
+#     dict_idu=groupes_inverse,
+#     limite=5,
+#     NIVEAU='gr'
+# )
 
-div_top_3 = structurer_resultats(
-    resultats_classification=resultats_division,
-    dict_idu=divisions_inverse,
-    limite=3,
-    NIVEAU='div'
-)
-
-groupes_top_5 = structurer_resultats(
-    resultats_classification=resultats_groupe_limite_par_div,
-    dict_idu=groupes_inverse,
-    limite=5,
-    NIVEAU='gr')
-
-merged_datfra = div_top_3.merge(groupes_top_5, on='sequence')
+# merged_datfra = div_top_3.merge(groupes_top_5, on='sequence')
 
 # raise SystemExit
 
@@ -365,7 +434,7 @@ if not os.path.exists(f"../out/{re.sub('/', '-', MODEL)}/"):
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
 FINE_TUNING = 'ltd' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
-LEVEL = 'gr' # div pour division, gr pour groupe, divgr pour groupe d'apres division
+LEVEL = 'gr' # div pour division, gr pour groupe, cls pour classe
 SCOPE = scope_map[DATASET]
 
 merged_datfra.to_csv(
