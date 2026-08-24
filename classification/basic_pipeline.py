@@ -448,48 +448,6 @@ for projet in projets:
 
 merged_datfra = classification_large() # runner un debug la-dessus
 
-# resultats_division = classificateur_simple(
-#     sequences=titres_comites,
-#     categories=divisions,
-#     multi_label_bool=False
-# )
-
-# # classification groupes limitee
-
-# resultats_groupe_limite_par_div = classificateur_complexe(
-#     resultats=resultats_division,
-#     categories=groupes_par_div,
-#     multi_label_bool=True
-# )
-
-# # classification groupes totale
-
-# resultats_groupes = classificateur_simple(
-#     sequences=titres_comites,
-#     categories=groupes,
-#     multi_label_bool=True
-# )
-
-# # --- nettoyage des resultats ---
-
-# div_top_3 = structurer_resultats(
-#     resultats_classification=resultats_division,
-#     dict_idu=divisions_inverse,
-#     limite=3,
-#     NIVEAU='div'
-# )
-
-# groupes_top_5 = structurer_resultats(
-#     resultats_classification=resultats_groupe_limite_par_div,
-#     dict_idu=groupes_inverse,
-#     limite=5,
-#     NIVEAU='gr'
-# )
-
-# merged_datfra = div_top_3.merge(groupes_top_5, on='sequence')
-
-# raise SystemExit
-
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
 now = datetime.now().strftime('%Y%m%d-%H%M')
@@ -498,7 +456,7 @@ if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
     os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
-FINE_TUNING = 'ltd' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
+FINE_TUNING = 'raw' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
 LEVEL = 'gr' # div pour division, gr pour groupe, cls pour classe
 SCOPE = scope_map[DATASET]
 
