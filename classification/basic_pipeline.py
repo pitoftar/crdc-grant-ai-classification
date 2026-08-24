@@ -14,7 +14,7 @@ logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
 
 # pipeline pour classification
 
-MODEL = 'MoritzLaurer/ModernBERT-large-zeroshot-v2.0'
+MODEL = 'MoritzLaurer/deberta-v3-large-zeroshot-v2.0'
 classifier = pipeline("zero-shot-classification", model=MODEL)
 
 # --- donnees projets ---
@@ -269,7 +269,7 @@ def structurer_resultats(
 
 # --- fonctions de classification de plus haut niveau ---
 
-def classification_sauvage(): # potentiellement customiser davantage
+def classification_large(): # potentiellement customiser davantage
     # classification division
 
     premier_niveau = classificateur_simple(
@@ -336,10 +336,10 @@ def classification_limitee():
         resultats_classification=deuxieme_niveau,
         dict_idu=groupes_inverse,
         limite=3,
-        NIVEAU='div'
+        NIVEAU='gr'
     )
 
-    resultat_final = top_n_deuxieme_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+    resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
 
     return resultat_final
 
