@@ -80,6 +80,38 @@ def offload_dans_dict(
 
     return liste
 
+# fonction pour rencherir les categories
+
+def categories_verboses(
+    df_dict: dict[pd.DataFrame],
+    colonne: str) -> dict:
+
+    """Retourne un dictionnaire de categories enrichies de
+    leurs sous-categories a partir d'un dataframe sous
+    la forme
+        {'Categorie 1' : 'Categorie 1 (includes sous-categorie 1;
+        sous- categorie 2; ... sous-categorie n)',
+        'Categorie 2' : 'Categorie 2 (includes sous-categorie 1;
+        sous-categorie 2; ... sous-categorie n)'}.
+
+    La variable "df_dict" correspond a un dictionnaire
+    de dataframes ou chaque clef est une categorie.
+
+    La variable "colonne" correspond a la colonne du
+    df qui contient les sous-categories.
+    """
+
+    dictionnaire = {}
+
+    for key, df in df_dict.items():
+        ar = np.array(df[colonne].values)
+        ar = np.unique(ar)
+        ar = '; '.join(ar)
+        string = f"{key} (includes {ar})"
+        dictionnaire.update({key: string})
+
+    return dictionnaire
+
 # fonction de classification simple (non-limitee par le niveau superieur)
 
 def classificateur_simple(
@@ -350,16 +382,27 @@ crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('divi
 crdc_gr = {code: discipline for code, discipline in crdc.dropna().groupby('group')}
 crdc_cls = {code: discipline for code, discipline in crdc.dropna().groupby('class')}
 
-div_verbose = []
+div_verbose = categories_verboses(
+    df_dict=crdc_div,
+    colonne='group'
+)
 
-for key, df in crdc_div.items():
-    a = np.array(df['group'].values)
-    a = np.unique(a)
-    tous_groupes = '; '.join(a)
-    div_finetuned = f"{key} (includes {tous_groupes})"
-    div_verbose.append(div_finetuned)
+gr_verbose = categories_verboses(
+    df_dict=crdc_gr,
+    colonne='class'
+)
 
-print(div_verbose)
+div_sscls = categories_verboses(
+    df_dict=crdc_div,
+    colonne='subclass'
+)
+
+gr_sscls = categories_verboses(
+    df_dict=crdc_gr,
+    colonne='subclass'
+)
+
+print(gr_verbose)
 
 raise SystemExit
 
