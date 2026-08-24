@@ -9,37 +9,7 @@ import pandas as pd
 import numpy as np
 import csv
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
-
-# pipeline pour classification
-
-MODEL = 'MoritzLaurer/deberta-v3-large-zeroshot-v2.0'
-classifier = pipeline("zero-shot-classification", model=MODEL)
-
-# --- donnees projets ---
-
-crdc = pd.read_csv(
-    '../data/crdc-full-encoder.csv',
-    names=['single_encoder',
-        'code_d',
-        'code_g',
-        'code_c', 
-        'code_sc',
-        'division', 
-        'group', 
-        'class', 
-        'subclass']
-    )
-
-# si le csv comporte des titres, enlever la premiere ligne du df
-# pour eviter de contaminer les donnees
-
-crdc.drop(
-    index=crdc.index[0],
-    axis=0,
-    inplace=True
-)
+from pipeline_config import DATA_DIR, OUT_DIR, MODEL
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 
@@ -73,17 +43,6 @@ def liste_colonne(
         dictionnaire[clef] = valeur[colonne].unique().tolist()
     
     return dictionnaire
-
-divisions = codes_uniques(crdc, 'code_d', 'division')
-divisions_inverse = codes_uniques(crdc, 'division', 'code_d')
-groupes = codes_uniques(crdc, 'code_g', 'group')
-groupes_inverse = codes_uniques(crdc, 'group', 'code_g')
-classes = codes_uniques(crdc, 'code_c', 'class')
-sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
-
-crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('division')}
-crdc_gr = {code: discipline for code, discipline in crdc.dropna().groupby('group')}
-crdc_cls = {code: discipline for code, discipline in crdc.dropna().groupby('class')}
 
 # fonction pour rendre les resultats plus manipulables (actuellement pas utilisee)
 
@@ -281,7 +240,7 @@ def classification_large(): # potentiellement customiser davantage
     # classification groupe
 
     deuxieme_niveau = classificateur_simple(
-        sequences=premier_niveau,
+        sequences=titres_comites,
         categories=groupes,
         multi_label_bool=True
     )
@@ -299,10 +258,10 @@ def classification_large(): # potentiellement customiser davantage
         resultats_classification=deuxieme_niveau,
         dict_idu=groupes_inverse,
         limite=5,
-        NIVEAU='div'
+        NIVEAU='gr'
     )
 
-    resultat_final = top_n_deuxieme_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+    resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
 
     return resultat_final
 
@@ -343,23 +302,86 @@ def classification_limitee():
 
     return resultat_final
 
+# --- MAIN ---
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
+
+# pipeline pour classification
+
+classifier = pipeline("zero-shot-classification", model=MODEL)
+
+# --- donnees projets ---
+
+crdc = pd.read_csv(
+    DATA_DIR / 'crdc-full-encoder.csv',
+    names=['single_encoder',
+        'code_d',
+        'code_g',
+        'code_c', 
+        'code_sc',
+        'division', 
+        'group', 
+        'class', 
+        'subclass']
+    )
+
+# si le csv comporte des titres, enlever la premiere ligne du df
+# pour eviter de contaminer les donnees
+
+crdc.drop(
+    index=crdc.index[0],
+    axis=0,
+    inplace=True
+)
+
+# dictionnaires a partir de dataframe
+
+divisions = codes_uniques(crdc, 'code_d', 'division')
+divisions_inverse = codes_uniques(crdc, 'division', 'code_d')
+groupes = codes_uniques(crdc, 'code_g', 'group')
+groupes_inverse = codes_uniques(crdc, 'group', 'code_g')
+classes = codes_uniques(crdc, 'code_c', 'class')
+sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
+
+# codes individuels pour les sous-groupes de chaque division
+
+crdc_div = {code: discipline for code, discipline in crdc.dropna().groupby('division')}
+crdc_gr = {code: discipline for code, discipline in crdc.dropna().groupby('group')}
+crdc_cls = {code: discipline for code, discipline in crdc.dropna().groupby('class')}
+
+div_verbose = []
+
+for key, df in crdc_div.items():
+    a = np.array(df['group'].values)
+    a = np.unique(a)
+    tous_groupes = '; '.join(a)
+    div_finetuned = f"{key} (includes {tous_groupes})"
+    div_verbose.append(div_finetuned)
+
+print(div_verbose)
+
+raise SystemExit
 
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
+
 groupes_par_div = liste_colonne(crdc_div, 'group')
 cls_par_gr = liste_colonne(crdc_gr, 'class')
 subcls_par_cls = liste_colonne(crdc_cls, 'subclass')
 
-# initialiser liste des titres seuls et initialiser liste des
-# titres avec comites entre parenthese (le cas echeant)
+# scope de donnees (a transferer dans pipeline_config.py)
 
-MINI = '../data/smaller_sample.csv'
-SAMPLE = '../data/sample.csv'
-FULL = '../data/projets_comites_complets-ENFR.csv'
+MINI = DATA_DIR / 'smaller_sample.csv'
+SAMPLE = DATA_DIR / 'sample.csv'
+FULL = DATA_DIR / 'projets_comites_complets-ENFR.csv'
 
 """/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
 DATASET = MINI
 
 scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
+
+# initialiser liste des titres seuls et initialiser liste des
+# titres avec comites entre parenthese (le cas echeant)
 
 dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'])
 
@@ -381,7 +403,7 @@ for projet in projets:
 
 # passage dans le classificateur
 
-merged_datfra = classification_limitee() # runner un debug la-dessus
+merged_datfra = classification_large() # runner un debug la-dessus
 
 # resultats_division = classificateur_simple(
 #     sequences=titres_comites,
@@ -429,8 +451,8 @@ merged_datfra = classification_limitee() # runner un debug la-dessus
 
 now = datetime.now().strftime('%Y%m%d-%H%M')
 
-if not os.path.exists(f"../out/{re.sub('/', '-', MODEL)}/"):
-    os.makedirs(f"../out/{re.sub('/', '-', MODEL)}/")
+if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
+    os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
 FINE_TUNING = 'ltd' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
@@ -438,7 +460,7 @@ LEVEL = 'gr' # div pour division, gr pour groupe, cls pour classe
 SCOPE = scope_map[DATASET]
 
 merged_datfra.to_csv(
-    f"../out/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
+    f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
     sep=';',
     mode='w',
     quotechar='"'
