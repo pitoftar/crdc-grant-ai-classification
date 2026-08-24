@@ -136,7 +136,7 @@ def classificateur_simple(
     elif isinstance(categories, dict):
         cat = list(categories.values())
     else:
-        raise Exception("La variable 'categories' doit etre une liste ou un dictionnaire.")
+        raise Exception("La variable 'categories' doit être une liste ou un dictionnaire.")
         # ou gerer avec logger?
 
     for i, seq in enumerate(sequences):
