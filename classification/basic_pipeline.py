@@ -281,7 +281,7 @@ def classification_sauvage(): # potentiellement customiser davantage
     # classification groupe
 
     deuxieme_niveau = classificateur_simple(
-        sequences=titres_comites,
+        sequences=premier_niveau,
         categories=groupes,
         multi_label_bool=True
     )
@@ -318,7 +318,7 @@ def classification_limitee():
     # classification groupe
 
     deuxieme_niveau = classificateur_complexe(
-        resultats=titres_comites,
+        resultats=premier_niveau,
         categories=groupes_par_div,
         multi_label_bool=True
     )
