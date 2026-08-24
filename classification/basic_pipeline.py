@@ -337,7 +337,7 @@ def classification_limitee():
 # --- MAIN ---
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
+logging.basicConfig(filename=f'{OUT_DIR}/classification_pipeline.log', level=logging.INFO)
 
 # pipeline pour classification
 
