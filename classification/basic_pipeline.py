@@ -13,6 +13,17 @@ from pipeline_config import DATA_DIR, OUT_DIR, MODEL
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 
+def inverser_dictionnaire(
+    dictionnaire: dict) -> dict:
+
+    """Renvoie un dictionnaire inverse (valeur: clef)
+    par rapport a sa forme originale.
+    """
+
+    eriannoitcid = {v: k for k, v in dictionnaire.items()}
+
+    return eriannoitcid
+
 def codes_uniques(
     dataframe: pd.DataFrame,
     index,
@@ -43,6 +54,35 @@ def liste_colonne(
         dictionnaire[clef] = valeur[colonne].unique().tolist()
     
     return dictionnaire
+
+def titres_projets(
+    source_donnees: pd.DataFrame,
+    col_titre: str,
+    col_comite: str = None) -> list:
+
+    """Retourne une liste des titres de projets pour
+    classification (incluant l'information sur les comites)
+    a partir d'un dataframe.
+
+    Les variables "col_titre" et "col_comite" correspondent
+    respectivement a la colonne ou l'on s'attend a trouver
+    le titre et le nom du comite des projets a classifier.
+    """
+
+    liste_donnees = list(source_donnees.T.to_dict().values())
+
+    if col_comite is None:
+        titres = [liste_donnees.get(col_titre) for element in liste_donnees if col_titre in element]
+    else:
+        titres = []
+        
+        for element in liste_donnees:
+            if str(element[col_comite]) == 'nan':
+                titres.append(element[col_titre])
+            else:
+                titres.append(f"{element[col_titre]} ({element[col_comite]})")
+
+    return titres
 
 # fonction pour rendre les resultats plus manipulables (actuellement pas utilisee)
 
@@ -260,11 +300,20 @@ def structurer_resultats(
 
 # --- fonctions de classification de plus haut niveau ---
 
-def classification_large(): # potentiellement customiser davantage
+def classification_large(
+    sequences: list,
+    divisions: dict,
+    groupes: dict) -> pd.DataFrame :
+
+    """Retourne un dataframe comprenant les projets classifies
+    aux deux premiers niveaux (divisions et groupes) independamment
+    l'un de l'autre.
+    """
+
     # classification division
 
     premier_niveau = classificateur_simple(
-        sequences=titres_comites,
+        sequences=sequences,
         categories=divisions,
         multi_label_bool=False
     )
@@ -272,23 +321,29 @@ def classification_large(): # potentiellement customiser davantage
     # classification groupe
 
     deuxieme_niveau = classificateur_simple(
-        sequences=titres_comites,
+        sequences=sequences,
         categories=groupes,
         multi_label_bool=True
     )
+
+    # inversion des dictionnaires de categories pour mapping
+
+    inv_div = inverser_dictionnaire(divisions)
+
+    inv_gr = inverser_dictionnaire(groupes)
 
     # top 3 div top 5 gr
 
     top_n_premier_niveau = structurer_resultats(
         resultats_classification=premier_niveau,
-        dict_idu=divisions_inverse,
+        dict_idu=inv_div,
         limite=3,
         NIVEAU='div'
     )
 
     top_n_deuxieme_niveau = structurer_resultats(
         resultats_classification=deuxieme_niveau,
-        dict_idu=groupes_inverse,
+        dict_idu=inv_gr,
         limite=5,
         NIVEAU='gr'
     )
@@ -297,7 +352,10 @@ def classification_large(): # potentiellement customiser davantage
 
     return resultat_final
 
-def classification_limitee():
+def classification_limitee(
+    sequences: list,
+    divisions: dict,
+    groupes_par_div: dict) -> pd.DataFrame :
     # classification division
 
     premier_niveau = classificateur_simple(
@@ -314,18 +372,24 @@ def classification_limitee():
         multi_label_bool=True
     )
 
+    # inversion des dictionnaires de categories pour mapping
+
+    inv_div = inverser_dictionnaire(divisions)
+
+    inv_gr = inverser_dictionnaire(groupes_par_div)
+
     # top 1 div top 3 gr
 
     top_n_premier_niveau = structurer_resultats(
         resultats_classification=premier_niveau,
-        dict_idu=divisions_inverse,
+        dict_idu=inv_div,
         limite=1,
         NIVEAU='div'
     )
 
     top_n_deuxieme_niveau = structurer_resultats(
         resultats_classification=deuxieme_niveau,
-        dict_idu=groupes_inverse,
+        dict_idu=inv_gr,
         limite=3,
         NIVEAU='gr'
     )
@@ -404,8 +468,6 @@ gr_sscls = categories_verboses(
 
 print(gr_verbose)
 
-raise SystemExit
-
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 
 groupes_par_div = liste_colonne(crdc_div, 'group')
@@ -428,25 +490,26 @@ scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
 
 dtfrm = pd.read_csv(DATASET, sep=';', names=['comite_en', 'comite_fr', 'titre'])
 
-projets = list(dtfrm.T.to_dict().values())
-k = 'titre'
-c = 'comite_en'
+titres_comites = titres_projets(
+    source_donnees=dtfrm,
+    col_titre='titre',
+    col_comite='comite_en'
+)
 
-titres = [projet.get(k) for projet in projets if k in projet]
+print (titres_comites)
 
-titres_comites = []
+raise SystemExit
 
-for projet in projets:
-    if str(projet[c]) == 'nan':
-        titres_comites.append(projet[k])
-    else:
-        titres_comites.append(f'{projet[k]} ({projet[c]})')
 
 # --- classification des projets selon la division ---
 
 # passage dans le classificateur
 
-merged_datfra = classification_large() # runner un debug la-dessus
+merged_datfra = classification_large(
+    sequences=titres_comites,
+    divisions=divisions,
+    groupes=groupes
+)
 
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
