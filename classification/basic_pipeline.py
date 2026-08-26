@@ -466,7 +466,15 @@ gr_sscls = categories_verboses(
     colonne='subclass'
 )
 
-print(gr_verbose)
+nouveau_dict = {}
+
+for key, value in groupes_inverse.items():
+    if key in gr_verbose.keys():
+        nouveau_dict.update({value: gr_verbose.get(key)})
+
+print(nouveau_dict)
+
+raise SystemExit
 
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 
@@ -496,10 +504,6 @@ titres_comites = titres_projets(
     col_comite='comite_en'
 )
 
-print (titres_comites)
-
-raise SystemExit
-
 
 # --- classification des projets selon la division ---
 
@@ -510,6 +514,12 @@ merged_datfra = classification_large(
     divisions=divisions,
     groupes=groupes
 )
+
+# merged_datfra = classification_limitee(
+#     sequences=titres_comites,
+#     divisions=divisions,
+#     groupes_par_div=groupes_par_div
+# )
 
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
