@@ -361,7 +361,6 @@ def structurer_resultats(
                 rangee[f"label_{prefixe}{idx}"] = classes[dict_idu[categorie]]
             else:
                 rangee[f"label_{prefixe}{idx}"] = categorie
-            rangee[f"label_{prefixe}{idx}"] = categorie
             rangee[f"score_{prefixe}{idx}"] = score
 
         rangees.append(rangee)
