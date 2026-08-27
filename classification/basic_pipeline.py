@@ -72,16 +72,25 @@ def def_niveau( # [WIP]
     a partir du jeu de donnees fourni en entree.
     """
 
-    if donnees in [division, divisions_inverse, div_verbose, div_sscls]:
-        niveau = 'div'
-    elif donnees in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] :
-        niveau = 'gr'
-    elif donnees in [classes, classes_inverse, cls_par_gr, cls_verbose]:
-        niveau = 'cls'
-    elif donnees in [sous_classes, subcls_par_cls] :
-        niveau = 'subcls'
+    sample = next(iter(donnees))
 
-    return niveau
+    collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
+    collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
+    collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
+    collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
+
+    if sample in collection_div:
+        nivo = 'div'
+    elif sample in collection_gr:
+        nivo = 'gr'
+    elif sample in collection_cls:
+        nivo = 'cls'
+    elif sample in collection_subscls:
+        nivo = 'subcls'
+    else:
+        raise Exception("Impossible de determiner le niveau de classification")
+
+    return nivo
 
 # fonction simple pour obtenir une liste de valeurs uniques
 # d'apres des colonnes dans un dictionnaire de dataframes
@@ -324,6 +333,10 @@ def structurer_resultats(
     label_gr_1, label_gr_2 ... label_gr_n). Elle est facultative.
     """
 
+    niveau = def_niveau(
+        donnees=dict_idu
+    )
+
     rangees = []
 
     prefixe = f"{NIVEAU}_" if NIVEAU else ''
@@ -340,8 +353,12 @@ def structurer_resultats(
             if idx > limite:
                 break
             rangee[f"code_{prefixe}{idx}"] = dict_idu[categorie]
-            if categorie in :
-
+            if niveau == 'div' and categorie in div_verbose.values():
+                rangee[f"label_{prefixe}{idx}"] = divisions[dict_idu[categorie]]
+            elif niveau == 'gr' and categorie in gr_verbose.values():
+                rangee[f"label_{prefixe}{idx}"] = groupes[dict_idu[categorie]]
+            elif niveau == 'cls' and categorie in cls_verbose.values():
+                rangee[f"label_{prefixe}{idx}"] = classes[dict_idu[categorie]]
             else:
                 rangee[f"label_{prefixe}{idx}"] = categorie
             rangee[f"label_{prefixe}{idx}"] = categorie
