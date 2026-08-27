@@ -34,6 +34,27 @@ def codes_uniques(
     dataframe = dataframe.dropna()
     return dataframe.set_index(index)[colonne].to_dict()
 
+# codes uniques pour categories verboses (abandonne)
+
+def codes_uniques_verbose(
+    niveau: str) -> dict:
+
+    """Retourne un dictionnaire qui applique un referencement
+    croise sur les categories verboses (fine-tuning maison) et
+    les codes uniques du CCRD.
+
+    La variable 'niveau' indique quel niveau (division, groupe,
+    classe ou sous-classe) est concerne.
+    """
+
+    dictionnaire = {}
+
+    for key, value in groupes_inverse.items():
+        if key in gr_verbose.keys():
+            nouveau_dict.update({gr_verbose.get(key): value})
+
+    return dictionnaire
+
 # fonction simple pour obtenir une liste de valeurs uniques
 # d'apres des colonnes dans un dictionnaire de dataframes
 # Source - https://stackoverflow.com/a/66912198
@@ -157,7 +178,7 @@ def categories_verboses(
 def classificateur_simple(
     sequences: list,
     categories,
-    multi_label_bool: bool=False) -> list:
+    multi_label_bool: bool = False) -> list:
 
     """Retourne une liste de dictionnaires de resultats tires d'une
     variante simple de la fonction classifier() de transformers.
@@ -306,7 +327,7 @@ def classification_large(
     groupes: dict) -> pd.DataFrame :
 
     """Retourne un dataframe comprenant les projets classifies
-    aux deux premiers niveaux (divisions et groupes) independamment
+    a deux niveaux (p. ex. divisions et groupes) independamment
     l'un de l'autre.
     """
 
@@ -398,6 +419,16 @@ def classification_limitee(
 
     return resultat_final
 
+
+
+
+
+
+
+
+
+
+
 # --- MAIN ---
 
 logger = logging.getLogger(__name__)
@@ -438,6 +469,7 @@ divisions_inverse = codes_uniques(crdc, 'division', 'code_d')
 groupes = codes_uniques(crdc, 'code_g', 'group')
 groupes_inverse = codes_uniques(crdc, 'group', 'code_g')
 classes = codes_uniques(crdc, 'code_c', 'class')
+classes_inverse = codes_uniques(crdc, 'class', 'code_c')
 sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
 
 # codes individuels pour les sous-groupes de chaque division
@@ -466,11 +498,24 @@ gr_sscls = categories_verboses(
     colonne='subclass'
 )
 
+cls_verbose = categories_verboses(
+    df_dict=crdc_cls,
+    colonne='subclass'
+)
+
+categories_map = {
+    div_verbose: divisions_inverse,
+    gr_verbose: groupes_inverse,
+    div_sscls: divisions_inverse,
+    gr_sscls: groupes_inverse,
+    cls_verbose: classes_inverse
+}
+
 nouveau_dict = {}
 
 for key, value in groupes_inverse.items():
     if key in gr_verbose.keys():
-        nouveau_dict.update({value: gr_verbose.get(key)})
+        nouveau_dict.update({gr_verbose.get(key): value})
 
 print(nouveau_dict)
 
@@ -491,7 +536,11 @@ FULL = DATA_DIR / 'projets_comites_complets-ENFR.csv'
 """/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
 DATASET = MINI
 
-scope_map = {MINI: 'mini', SAMPLE: 'sample', FULL: 'full'}
+scope_map = {
+    MINI: 'mini',
+    SAMPLE: 'sample',
+    FULL: 'full'
+}
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
