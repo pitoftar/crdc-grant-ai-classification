@@ -48,9 +48,9 @@ def codes_uniques_verbose(
     est concerne.
     """
 
-    if niveau == div_verbose or div_sscls:
+    if niveau == div_verbose or niveau == div_sscls:
         mapping = divisions_inverse
-    elif niveau == gr_verbose or gr_sscls:
+    elif niveau == gr_verbose or niveau == gr_sscls:
         mapping = groupes_inverse
     elif niveau == cls_verbose:
         mapping = classes_inverse
@@ -60,10 +60,24 @@ def codes_uniques_verbose(
     dictionnaire = {}
 
     for key, value in mapping.items():
-        if key in niveau.keys():
-            dictionnaire.update({niveau.get(key): value})
+        if key in niveau:
+            dictionnaire[niveau[key]] = value
 
     return dictionnaire
+
+# def def_niveau( # [WIP]
+#     donnees: dict) -> str:
+
+#     """Deduit le niveau a inscrire dans le fichier de sortie
+#     a partir du jeu de donnees fourni en entree.
+#     """
+
+#     if donnees == :
+#         niveau = 
+
+
+
+#     return niveau
 
 # fonction simple pour obtenir une liste de valeurs uniques
 # d'apres des colonnes dans un dictionnaire de dataframes
@@ -429,6 +443,68 @@ def classification_limitee(
 
     return resultat_final
 
+def classification_affinee_simple(
+    sequences: list,
+    categories_generales: dict,
+    categories_specifiques: dict = None) -> pd.DataFrame:
+
+    """Retourne un dataframe comportant les resultats d'une
+    classification affinee (ou les categories sont enrichies
+    de leurs sous-categories).
+    La deuxieme classification est effectuee sans egard pour
+    le premier niveau de classification.
+    """
+
+    # classification premier niveau
+
+    premier_niveau = classificateur_simple(
+        sequences=sequences,
+        categories=categories_generales,
+        multi_label_bool=False
+    )
+
+    cat_idu_1 = codes_uniques_verbose(
+        niveau=categories_generales
+    )
+
+    top_n_premier_niveau = structurer_resultats(
+        resultats_classification=premier_niveau,
+        dict_idu=cat_idu_1,
+        limite=3,
+        NIVEAU='div' # ajuster avec la fonction def_niveau()
+    )
+
+    # classification deuxieme niveau
+
+    if categories_specifiques is not None:
+
+        deuxieme_niveau = classificateur_simple(
+            sequences=sequences,
+            categories=categories_specifiques,
+            multi_label_bool=True
+        )
+
+        cat_idu_2 = codes_uniques_verbose(
+            niveau=categories_specifiques
+        )
+
+        top_n_deuxieme_niveau = structurer_resultats(
+            resultats_classification=deuxieme_niveau,
+            dict_idu=cat_idu_2,
+            limite=5,
+            NIVEAU='gr' # ajuster avec foncion def_niveau()
+        )
+
+        resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+
+    else:
+        resultat_final = top_n_premier_niveau
+
+    return resultat_final
+
+
+
+
 
 
 
@@ -550,17 +626,23 @@ titres_comites = titres_projets(
 
 # passage dans le classificateur
 
-merged_datfra = classification_large(
-    sequences=titres_comites,
-    divisions=divisions,
-    groupes=groupes
-)
+# merged_datfra = classification_large(
+#     sequences=titres_comites,
+#     divisions=divisions,
+#     groupes=groupes
+# )
 
 # merged_datfra = classification_limitee(
 #     sequences=titres_comites,
 #     divisions=divisions,
 #     groupes_par_div=groupes_par_div
 # )
+
+merged_datfra = classification_affinee_simple(
+    sequences=titres_comites,
+    categories_generales=div_verbose,
+    categories_specifiques=gr_verbose
+)
 
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
@@ -570,7 +652,7 @@ if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
     os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
 
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
-FINE_TUNING = 'raw' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
+FINE_TUNING = 'finet' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
 LEVEL = 'gr' # div pour division, gr pour groupe, cls pour classe
 SCOPE = scope_map[DATASET]
 
