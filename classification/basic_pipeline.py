@@ -37,21 +37,31 @@ def codes_uniques(
 # codes uniques pour categories verboses (abandonne)
 
 def codes_uniques_verbose(
-    niveau: str) -> dict:
+    niveau: dict) -> dict:
 
     """Retourne un dictionnaire qui applique un referencement
     croise sur les categories verboses (fine-tuning maison) et
     les codes uniques du CCRD.
 
-    La variable 'niveau' indique quel niveau (division, groupe,
-    classe ou sous-classe) est concerne.
+    La variable 'niveau' est le dictionnaire des variables qui
+    indique quel niveau (division, groupe ou classe)
+    est concerne.
     """
+
+    if niveau == div_verbose or div_sscls:
+        mapping = divisions_inverse
+    elif niveau == gr_verbose or gr_sscls:
+        mapping = groupes_inverse
+    elif niveau == cls_verbose:
+        mapping = classes_inverse
+    else:
+        raise ValueError(f"Le niveau doit etre l'un des dictionnaires de categories affinees")
 
     dictionnaire = {}
 
-    for key, value in groupes_inverse.items():
-        if key in gr_verbose.keys():
-            nouveau_dict.update({gr_verbose.get(key): value})
+    for key, value in mapping.items():
+        if key in niveau.keys():
+            dictionnaire.update({niveau.get(key): value})
 
     return dictionnaire
 
@@ -502,24 +512,6 @@ cls_verbose = categories_verboses(
     df_dict=crdc_cls,
     colonne='subclass'
 )
-
-categories_map = {
-    div_verbose: divisions_inverse,
-    gr_verbose: groupes_inverse,
-    div_sscls: divisions_inverse,
-    gr_sscls: groupes_inverse,
-    cls_verbose: classes_inverse
-}
-
-nouveau_dict = {}
-
-for key, value in groupes_inverse.items():
-    if key in gr_verbose.keys():
-        nouveau_dict.update({gr_verbose.get(key): value})
-
-print(nouveau_dict)
-
-raise SystemExit
 
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 
