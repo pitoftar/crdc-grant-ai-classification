@@ -65,19 +65,23 @@ def codes_uniques_verbose(
 
     return dictionnaire
 
-# def def_niveau( # [WIP]
-#     donnees: dict) -> str:
+def def_niveau( # [WIP]
+    donnees: dict) -> str:
 
-#     """Deduit le niveau a inscrire dans le fichier de sortie
-#     a partir du jeu de donnees fourni en entree.
-#     """
+    """Deduit le niveau a inscrire dans le fichier de sortie
+    a partir du jeu de donnees fourni en entree.
+    """
 
-#     if donnees == :
-#         niveau = 
+    if donnees in [division, divisions_inverse, div_verbose, div_sscls]:
+        niveau = 'div'
+    elif donnees in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] :
+        niveau = 'gr'
+    elif donnees in [classes, classes_inverse, cls_par_gr, cls_verbose]:
+        niveau = 'cls'
+    elif donnees in [sous_classes, subcls_par_cls] :
+        niveau = 'subcls'
 
-
-
-#     return niveau
+    return niveau
 
 # fonction simple pour obtenir une liste de valeurs uniques
 # d'apres des colonnes dans un dictionnaire de dataframes
@@ -336,6 +340,10 @@ def structurer_resultats(
             if idx > limite:
                 break
             rangee[f"code_{prefixe}{idx}"] = dict_idu[categorie]
+            if categorie in :
+
+            else:
+                rangee[f"label_{prefixe}{idx}"] = categorie
             rangee[f"label_{prefixe}{idx}"] = categorie
             rangee[f"score_{prefixe}{idx}"] = score
 
