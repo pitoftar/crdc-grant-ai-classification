@@ -294,7 +294,7 @@ def classificateur_complexe(
     liste = []
 
     for i, resultat in enumerate(resultats):
-        categorie_probable = resultat['labels'][0] # bug ici : string indices must be integers
+        categorie_probable = resultat['labels'][0]
         score_cat_no_1 = resultat['scores'][0]
         titre = resultat['sequence']
 
@@ -467,7 +467,7 @@ def classification_limitee(
 
     return resultat_final
 
-def classification_affinee_simple(
+def classification_affinee_large(
     sequences: list,
     categories_generales: dict,
     categories_specifiques: dict = None) -> pd.DataFrame:
@@ -525,6 +525,44 @@ def classification_affinee_simple(
         resultat_final = top_n_premier_niveau
 
     return resultat_final
+
+def classification_affinee_limitee(
+    sequences: list,
+    categories_generales: dict,
+    categories_specifiques: dict) -> pd.DataFrame:
+
+    """Retourne un dataframe comportant les resultats d'une
+    classification affinee (ou les categories sont enrichies
+    de leurs sous-categories).
+    La deuxieme classification est effectuee selon les resultats
+    du premier niveau de classification.
+    """
+
+    # classification premier niveau
+
+    premier_niveau = classificateur_simple(
+        sequences=sequences,
+        categories=categories_generales,
+        multi_label_bool=False
+    )
+
+    cat_idu_1 = codes_uniques_verbose(
+        niveau=categories_generales
+    )
+
+    top_n_premier_niveau = structurer_resultats(
+        resultats_classification=premier_niveau,
+        dict_idu=cat_idu_1,
+        limite=1,
+        NIVEAU='div' # ajuster avec la fonction def_niveau()
+    )
+
+    # classification deuxieme niveau
+
+    deuxieme_niveau = classificateur_complexe(
+        sequences=sequences,
+        categories=
+    )
 
 
 
@@ -662,11 +700,17 @@ titres_comites = titres_projets(
 #     groupes_par_div=groupes_par_div
 # )
 
-merged_datfra = classification_affinee_simple(
-    sequences=titres_comites,
-    categories_generales=div_verbose,
-    categories_specifiques=gr_verbose
-)
+# merged_datfra = classification_affinee_large(
+#     sequences=titres_comites,
+#     categories_generales=div_verbose,
+#     categories_specifiques=gr_verbose
+# )
+
+# merged_datfra = classification_affinee_limitee(
+#     sequences=titres_comites,
+#     categories_generales=div_verbose,
+#     categories_specifiques= # remplir ici, il me faut un groupe par div mais verbose, help
+# )
 
 # ajuster le titre du document de sortie en fonction du traitement de la classification
 
