@@ -372,12 +372,18 @@ def structurer_resultats(
 def classification_large(
     sequences: list,
     divisions: dict,
-    groupes: dict) -> pd.DataFrame :
+    groupes: dict = None) -> pd.DataFrame :
 
     """Retourne un dataframe comprenant les projets classifies
-    a deux niveaux (p. ex. divisions et groupes) independamment
+    a un ou deux niveaux (p. ex. divisions et groupes) independamment
     l'un de l'autre.
     """
+
+    # inversion des dictionnaires de categories pour mapping
+
+    inv_div = inverser_dictionnaire(divisions)
+
+    inv_gr = inverser_dictionnaire(groupes)
 
     # classification division
 
@@ -387,21 +393,7 @@ def classification_large(
         multi_label_bool=False
     )
 
-    # classification groupe
-
-    deuxieme_niveau = classificateur_simple(
-        sequences=sequences,
-        categories=groupes,
-        multi_label_bool=True
-    )
-
-    # inversion des dictionnaires de categories pour mapping
-
-    inv_div = inverser_dictionnaire(divisions)
-
-    inv_gr = inverser_dictionnaire(groupes)
-
-    # top 3 div top 5 gr
+    # top 3 div
 
     top_n_premier_niveau = structurer_resultats(
         resultats_classification=premier_niveau,
@@ -410,14 +402,28 @@ def classification_large(
         NIVEAU='div'
     )
 
-    top_n_deuxieme_niveau = structurer_resultats(
-        resultats_classification=deuxieme_niveau,
-        dict_idu=inv_gr,
-        limite=5,
-        NIVEAU='gr'
-    )
+    if groupes is not None:
+        # classification groupe
 
-    resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+        deuxieme_niveau = classificateur_simple(
+            sequences=sequences,
+            categories=groupes,
+            multi_label_bool=True
+        )
+
+        # top 5 gr
+
+        top_n_deuxieme_niveau = structurer_resultats(
+            resultats_classification=deuxieme_niveau,
+            dict_idu=inv_gr,
+            limite=5,
+            NIVEAU='gr'
+        )
+
+        resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+
+    else:
+        resultat_final = top_n_premier_niveau
 
     return resultat_final
 
