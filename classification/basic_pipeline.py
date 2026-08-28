@@ -9,7 +9,16 @@ import pandas as pd
 import numpy as np
 import csv
 
-from pipeline_config import DATA_DIR, OUT_DIR, MODEL
+from pipeline_config import (
+    DATA_DIR,
+    OUT_DIR,
+    MODEL,
+    DATASET,
+    SCOPE,
+    SEQ,
+    FINE_TUNING,
+    LEVEL
+)
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 
@@ -130,7 +139,7 @@ def titres_projets(
     liste_donnees = list(source_donnees.T.to_dict().values())
 
     if col_comite is None:
-        titres = [liste_donnees.get(col_titre) for element in liste_donnees if col_titre in element]
+        titres = liste_donnees
     else:
         titres = []
         
@@ -372,18 +381,12 @@ def structurer_resultats(
 def classification_large(
     sequences: list,
     divisions: dict,
-    groupes: dict = None) -> pd.DataFrame :
+    groupes: dict) -> pd.DataFrame :
 
     """Retourne un dataframe comprenant les projets classifies
-    a un ou deux niveaux (p. ex. divisions et groupes) independamment
+    a deux niveaux (p. ex. divisions et groupes) independamment
     l'un de l'autre.
     """
-
-    # inversion des dictionnaires de categories pour mapping
-
-    inv_div = inverser_dictionnaire(divisions)
-
-    inv_gr = inverser_dictionnaire(groupes)
 
     # classification division
 
@@ -393,7 +396,21 @@ def classification_large(
         multi_label_bool=False
     )
 
-    # top 3 div
+    # classification groupe
+
+    deuxieme_niveau = classificateur_simple(
+        sequences=sequences,
+        categories=groupes,
+        multi_label_bool=True
+    )
+
+    # inversion des dictionnaires de categories pour mapping
+
+    inv_div = inverser_dictionnaire(divisions)
+
+    inv_gr = inverser_dictionnaire(groupes)
+
+    # top 3 div top 5 gr
 
     top_n_premier_niveau = structurer_resultats(
         resultats_classification=premier_niveau,
@@ -402,28 +419,14 @@ def classification_large(
         NIVEAU='div'
     )
 
-    if groupes is not None:
-        # classification groupe
+    top_n_deuxieme_niveau = structurer_resultats(
+        resultats_classification=deuxieme_niveau,
+        dict_idu=inv_gr,
+        limite=5,
+        NIVEAU='gr'
+    )
 
-        deuxieme_niveau = classificateur_simple(
-            sequences=sequences,
-            categories=groupes,
-            multi_label_bool=True
-        )
-
-        # top 5 gr
-
-        top_n_deuxieme_niveau = structurer_resultats(
-            resultats_classification=deuxieme_niveau,
-            dict_idu=inv_gr,
-            limite=5,
-            NIVEAU='gr'
-        )
-
-        resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
-
-    else:
-        resultat_final = top_n_premier_niveau
+    resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
 
     return resultat_final
 
@@ -618,13 +621,40 @@ crdc.drop(
 
 # dictionnaires a partir de dataframe
 
-divisions = codes_uniques(crdc, 'code_d', 'division')
-divisions_inverse = codes_uniques(crdc, 'division', 'code_d')
-groupes = codes_uniques(crdc, 'code_g', 'group')
-groupes_inverse = codes_uniques(crdc, 'group', 'code_g')
-classes = codes_uniques(crdc, 'code_c', 'class')
-classes_inverse = codes_uniques(crdc, 'class', 'code_c')
-sous_classes = codes_uniques(crdc, 'code_sc', 'subclass')
+divisions = codes_uniques(
+    dataframe=crdc,
+    index='code_d',
+    colonne='division')
+
+divisions_inverse = codes_uniques(
+    dataframe=crdc, 
+    index='division', 
+    colonne='code_d')
+
+groupes = codes_uniques(
+    dataframe=crdc, 
+    index='code_g', 
+    colonne='group')
+
+groupes_inverse = codes_uniques(
+    dataframe=crdc, 
+    index='group', 
+    colonne='code_g')
+
+classes = codes_uniques(
+    dataframe=crdc, 
+    index='code_c', 
+    colonne='class')
+
+classes_inverse = codes_uniques(
+    dataframe=crdc, 
+    index='class', 
+    colonne='code_c')
+
+sous_classes = codes_uniques(
+    dataframe=crdc, 
+    index='code_sc', 
+    colonne='subclass')
 
 # codes individuels pour les sous-groupes de chaque division
 
@@ -659,24 +689,17 @@ cls_verbose = categories_verboses(
 
 # dictionnaire sous la forme en plein texte {division: [groupe 1, groupe 2 ... groupe n]}
 
-groupes_par_div = liste_colonne(crdc_div, 'group')
-cls_par_gr = liste_colonne(crdc_gr, 'class')
-subcls_par_cls = liste_colonne(crdc_cls, 'subclass')
+groupes_par_div = liste_colonne(
+    dictionnaire=crdc_div, 
+    colonne='group')
 
-# scope de donnees (a transferer dans pipeline_config.py)
+cls_par_gr = liste_colonne(
+    dictionnaire=crdc_gr, 
+    colonne='class')
 
-MINI = DATA_DIR / 'smaller_sample.csv'
-SAMPLE = DATA_DIR / 'sample.csv'
-FULL = DATA_DIR / 'projets_comites_complets-ENFR.csv'
-
-"""/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
-DATASET = MINI
-
-scope_map = {
-    MINI: 'mini',
-    SAMPLE: 'sample',
-    FULL: 'full'
-}
+subcls_par_cls = liste_colonne(
+    dictionnaire=crdc_cls, 
+    colonne='subclass')
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
@@ -689,50 +712,64 @@ titres_comites = titres_projets(
     col_comite='comite_en'
 )
 
-
-# --- classification des projets selon la division ---
-
-# passage dans le classificateur
-
-# merged_datfra = classification_large(
-#     sequences=titres_comites,
-#     divisions=divisions,
-#     groupes=groupes
-# )
-
-# merged_datfra = classification_limitee(
-#     sequences=titres_comites,
-#     divisions=divisions,
-#     groupes_par_div=groupes_par_div
-# )
-
-# merged_datfra = classification_affinee_large(
-#     sequences=titres_comites,
-#     categories_generales=div_verbose,
-#     categories_specifiques=gr_verbose
-# )
-
-# merged_datfra = classification_affinee_limitee(
-#     sequences=titres_comites,
-#     categories_generales=div_verbose,
-#     categories_specifiques= # remplir ici, il me faut un groupe par div mais verbose, help
-# )
-
-# ajuster le titre du document de sortie en fonction du traitement de la classification
-
-now = datetime.now().strftime('%Y%m%d-%H%M')
-
-if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
-    os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
-
-SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
-FINE_TUNING = 'finet' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning
-LEVEL = 'gr' # div pour division, gr pour groupe, cls pour classe
-SCOPE = scope_map[DATASET]
-
-merged_datfra.to_csv(
-    f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
-    sep=';',
-    mode='w',
-    quotechar='"'
+titres = titres_projets(
+    source_donnees=dtfrm,
+    col_titre='titre'
 )
+
+# dictionnaire de parametrage
+
+seq_map = {
+    'tc': titres_comites,
+    't': titres
+}
+
+fine_tuning_map = {
+    'raw': classification_large,
+    'ltd': classification_limitee,
+    'finet': classification_affinee_large
+}
+
+def main():
+
+    # passage dans le classificateur en fonction
+    # des parametres declares dans config.py
+
+    if FINE_TUNING == 'finet':
+        merged_datfra = classification_affinee_large(
+            sequences=seq_map[SEQ],
+            categories_generales=div_verbose,
+            categories_specifiques=gr_verbose
+        )
+    
+    elif FINE_TUNING == 'ltd':
+        merged_datfra = classification_limitee(
+            sequences=seq_map[SEQ],
+            divisions=divisions,
+            groupes_par_div=groupes_par_div
+        )
+    
+    else:
+        merged_datfra = classification_large(
+            sequences=seq_map[SEQ],
+            divisions=divisions,
+            groupes=groupes
+        )
+
+    # ajustement du titre du document de sortie en fonction du traitement de la classification
+
+    now = datetime.now().strftime('%Y%m%d-%H%M')
+
+    if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
+        os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
+
+    merged_datfra.to_csv(
+        f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
+        sep=';',
+        mode='w',
+        quotechar='"'
+    )
+
+
+if __name__ == "__main__":
+    main()
