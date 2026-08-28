@@ -27,5 +27,4 @@ DATASET = MINI
 """/!\ ↓↓↓ CHANGER LE PIPELINE ICI ↓↓↓ /!\ """
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
 FINE_TUNING = 'finet' # raw sans fine-tuning, finet avec fine-tuning
-LEVEL = 'gr' # div pour division, gr pour groupe, cls pour classe
 SCOPE = scope_map[DATASET]

@@ -690,7 +690,7 @@ def main():
         os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
 
     merged_datfra.to_csv(
-        f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
+        f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{SCOPE}.csv",
         sep=';',
         mode='w',
         quotechar='"'
