@@ -142,42 +142,6 @@ def titres_projets(
 
     return titres
 
-# fonction pour rendre les resultats plus manipulables (actuellement pas utilisee)
-
-def offload_dans_dict(
-    liste_dicts_de_resultats: list,
-    NIVEAU: str) -> list:
-
-    """A partir d'une liste de dictionnaires obtenus comme
-    resultats de la fonction classifier(), retourne une liste
-    de dictionnaires ou les paires clef/valeurs sont des tuples (str, str).
-
-    La variable "liste_dicts_de_resultats" fournie a la fonction
-    correspond a une liste de dictionnaire structuree comme suit:
-        [{sequence: str, labels: [], scores: []},
-        {sequence: str, labels: [], scores: []}...].
-
-    La variable "NIVEAU" est un string qui traduit le niveau
-    de classification afin d'identifier les variables adequatement
-    (e.g. 'div', 'gr', etc.). Il alimente la nomenclature des clefs
-    (p.ex si NIVEAU='gr', les variables seront associees aux clefs
-    labels_gr_1, labels_gr_2 ... labels_gr_n).
-    """
-
-    liste = []
-
-    for resultat in liste_dicts_de_resultats:
-        rangee = {}
-        for k, v in resultat.items():
-            if isinstance(v, list):
-                for idx, val in enumerate(v, start=1):
-                    rangee.update({f"{k}_{NIVEAU}_{idx}": val})
-            else:
-                rangee.update({k : v})
-        liste.append(rangee)
-
-    return liste
-
 # fonction pour rencherir les categories
 
 def categories_verboses(
