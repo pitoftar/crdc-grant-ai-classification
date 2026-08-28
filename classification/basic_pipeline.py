@@ -526,44 +526,6 @@ def classification_affinee_large(
 
     return resultat_final
 
-def classification_affinee_limitee(
-    sequences: list,
-    categories_generales: dict,
-    categories_specifiques: dict) -> pd.DataFrame:
-
-    """Retourne un dataframe comportant les resultats d'une
-    classification affinee (ou les categories sont enrichies
-    de leurs sous-categories).
-    La deuxieme classification est effectuee selon les resultats
-    du premier niveau de classification.
-    """
-
-    # classification premier niveau
-
-    premier_niveau = classificateur_simple(
-        sequences=sequences,
-        categories=categories_generales,
-        multi_label_bool=False
-    )
-
-    cat_idu_1 = codes_uniques_verbose(
-        niveau=categories_generales
-    )
-
-    top_n_premier_niveau = structurer_resultats(
-        resultats_classification=premier_niveau,
-        dict_idu=cat_idu_1,
-        limite=1,
-        NIVEAU='div' # ajuster avec la fonction def_niveau()
-    )
-
-    # classification deuxieme niveau
-
-    deuxieme_niveau = classificateur_complexe(
-        sequences=sequences,
-        categories=
-    )
-
 
 
 
