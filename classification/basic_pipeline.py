@@ -9,7 +9,16 @@ import pandas as pd
 import numpy as np
 import csv
 
-import pipeline_config as config
+from pipeline_config import (
+    DATA_DIR,
+    OUT_DIR,
+    MODEL,
+    DATASET,
+    SCOPE,
+    SEQ,
+    FINE_TUNING,
+    LEVEL
+)
 
 # stocker les divisions et groupes uniques dans un dictionnaire
 
@@ -130,7 +139,7 @@ def titres_projets(
     liste_donnees = list(source_donnees.T.to_dict().values())
 
     if col_comite is None:
-        titres = [liste_donnees.get(col_titre) for element in liste_donnees if col_titre in element]
+        titres = liste_donnees
     else:
         titres = []
         
@@ -515,7 +524,7 @@ classifier = pipeline("zero-shot-classification", model=MODEL)
 # --- donnees projets ---
 
 crdc = pd.read_csv(
-    config.DATA_DIR / 'crdc-full-encoder.csv',
+    DATA_DIR / 'crdc-full-encoder.csv',
     names=['single_encoder',
         'code_d',
         'code_g',
@@ -634,32 +643,44 @@ titres = titres_projets(
     col_titre='titre'
 )
 
-def main():
+# dictionnaire de parametrage
 
-    # --- classification des projets selon la division ---
+seq_map = {
+    'tc': titres_comites,
+    't': titres
+}
+
+fine_tuning_map = {
+    'raw': classification_large,
+    'ltd': classification_limitee,
+    'finet': classification_affinee_large
+}
+
+def main():
 
     # passage dans le classificateur en fonction
     # des parametres declares dans config.py
 
-    if SEQ == 't' and FINE_TUNING == 'finet' and LEVEL == ''
-
-    merged_datfra = classification_large(
-        sequences=titres_comites,
-        divisions=divisions,
-        groupes=groupes
-    )
-
-    # merged_datfra = classification_limitee(
-    #     sequences=titres_comites,
-    #     divisions=divisions,
-    #     groupes_par_div=groupes_par_div
-    # )
-
-    # merged_datfra = classification_affinee_large(
-    #     sequences=titres_comites,
-    #     categories_generales=div_verbose,
-    #     categories_specifiques=gr_verbose
-    # )
+    if FINE_TUNING == 'finet':
+        merged_datfra = classification_affinee_large(
+            sequences=seq_map[SEQ],
+            categories_generales=div_verbose,
+            categories_specifiques=gr_verbose
+        )
+    
+    elif FINE_TUNING == 'ltd':
+        merged_datfra = classification_limitee(
+            sequences=seq_map[SEQ],
+            divisions=divisions,
+            groupes_par_div=groupes_par_div
+        )
+    
+    else:
+        merged_datfra = classification_large(
+            sequences=seq_map[SEQ],
+            divisions=divisions,
+            groupes=groupes
+        )
 
     # ajustement du titre du document de sortie en fonction du traitement de la classification
 
@@ -668,11 +689,13 @@ def main():
     if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
         os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
 
-
-
     merged_datfra.to_csv(
         f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
         sep=';',
         mode='w',
         quotechar='"'
     )
+
+
+if __name__ == "__main__":
+    main()
