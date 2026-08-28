@@ -16,8 +16,7 @@ from pipeline_config import (
     DATASET,
     SCOPE,
     SEQ,
-    FINE_TUNING,
-    LEVEL
+    FINE_TUNING
 )
 
 # stocker les divisions et groupes uniques dans un dictionnaire
