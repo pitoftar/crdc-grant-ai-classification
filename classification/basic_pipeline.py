@@ -226,7 +226,7 @@ def classificateur_simple(
 
         liste.append(resultat)
 
-        logger.info(f"Grant #{i+1} classification DONE\t\t\t{seq}")
+        logger.info(f"Grant #{i+1} classification ({categories}) DONE\t\t\t{seq}")
         # ajouter logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
         # a def main() pour creer document de log
     
@@ -417,7 +417,7 @@ def classification_limitee(
 
     inv_div = inverser_dictionnaire(divisions)
 
-    inv_gr = inverser_dictionnaire(groupes_par_div)
+    # inv_gr = inverser_dictionnaire(groupes_par_div) # probleme car unhashable values
 
     # top 1 div top 3 gr
 
@@ -430,7 +430,7 @@ def classification_limitee(
 
     top_n_deuxieme_niveau = structurer_resultats(
         resultats_classification=deuxieme_niveau,
-        dict_idu=inv_gr,
+        dict_idu=groupes_inverse,
         limite=3,
         NIVEAU='gr'
     )
@@ -514,7 +514,7 @@ def classification_affinee_large(
 # --- MAIN ---
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename=f'{OUT_DIR}/classification_pipeline.log', level=logging.INFO)
+logging.basicConfig(filename=f'{OUT_DIR}/log/{now}_classification_pipeline.log', level=logging.INFO)
 
 # pipeline pour classification
 
