@@ -73,6 +73,11 @@ def codes_uniques_verbose(
 
     return dictionnaire
 
+collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
+collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
+collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
+collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
+
 def def_niveau( # [WIP]
     donnees: dict) -> str:
 
@@ -81,11 +86,6 @@ def def_niveau( # [WIP]
     """
 
     sample = next(iter(donnees))
-
-    collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
-    collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
-    collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
-    collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
 
     if sample in collection_div:
         nivo = 'div'
@@ -267,7 +267,6 @@ def classificateur_complexe(
 
     for i, resultat in enumerate(resultats):
         categorie_probable = resultat['labels'][0]
-        score_cat_no_1 = resultat['scores'][0]
         titre = resultat['sequence']
 
         resultat_limite = classifier(titre, categories[categorie_probable], multi_label=multi_label_bool)
