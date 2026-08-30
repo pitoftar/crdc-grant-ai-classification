@@ -43,13 +43,13 @@ def codes_uniques(
     dataframe = dataframe.dropna()
     return dataframe.set_index(index)[colonne].to_dict()
 
-# codes uniques pour categories verboses (abandonne)
+# codes uniques pour catégories verboses (abandonne)
 
 def codes_uniques_verbose(
     niveau: dict) -> dict:
 
     """Retourne un dictionnaire qui applique un referencement
-    croise sur les categories verboses (fine-tuning maison) et
+    croise sur les catégories verboses (fine-tuning maison) et
     les codes uniques du CCRD.
 
     La variable 'niveau' est le dictionnaire des variables qui
@@ -57,14 +57,14 @@ def codes_uniques_verbose(
     est concerne.
     """
 
-    if niveau == div_verbose or niveau == div_sscls:
+    if niveau == div_verbose or niveau == div_sscls: # affiner avec def_niveau()?
         mapping = divisions_inverse
     elif niveau == gr_verbose or niveau == gr_sscls:
         mapping = groupes_inverse
     elif niveau == cls_verbose:
         mapping = classes_inverse
     else:
-        raise ValueError(f"Le niveau doit etre l'un des dictionnaires de categories affinees")
+        raise ValueError(f"Le niveau doit etre l'un des dictionnaires de catégories affinées")
 
     dictionnaire = {}
 
@@ -122,6 +122,33 @@ def liste_colonne(
     
     return dictionnaire
 
+# début nouvelle fonction pour classification verbose affinée
+
+def categories_enrichies(
+    df_dict: dict[pd.DataFrame],
+    colonne_premier_niveau: str,
+    colonne_deuxieme_niveau: str
+) -> dict:
+    
+    dictionnaire = {}
+
+    for categorie, df in df_dict.items():
+        souscategories = np.unique(df[colonne_premier_niveau].values)
+        clef = f"{categorie} (includes {'; '.join(souscategories)})"
+
+        valeur = []
+
+        for souscat in souscategories:
+            df_spliced = df[df[colonne_premier_niveau] == souscat]
+            sous_souscat = np.unique(df_spliced[colonne_deuxieme_niveau].values)
+            valeur.append(f"{souscat} (includes {'; '.join(sous_souscat)})")
+
+        dictionnaire[clef] = valeur
+    
+    return dictionnaire
+
+# fin
+
 def titres_projets(
     source_donnees: pd.DataFrame,
     col_titre: str,
@@ -155,7 +182,8 @@ def titres_projets(
 
 def offload_dans_dict(
     liste_dicts_de_resultats: list,
-    NIVEAU: str) -> list:
+    NIVEAU: str # ajuster avec def_niveau()?
+) -> list:
 
     """A partir d'une liste de dictionnaires obtenus comme
     resultats de la fonction classifier(), retourne une liste
@@ -187,25 +215,25 @@ def offload_dans_dict(
 
     return liste
 
-# fonction pour rencherir les categories
+# fonction pour rencherir les catégories
 
 def categories_verboses(
     df_dict: dict[pd.DataFrame],
     colonne: str) -> dict:
 
-    """Retourne un dictionnaire de categories enrichies de
-    leurs sous-categories a partir d'un dataframe sous
+    """Retourne un dictionnaire de catégories enrichies de
+    leurs sous-catégories a partir d'un dataframe sous
     la forme
-        {'Categorie 1' : 'Categorie 1 (includes sous-categorie 1;
-        sous- categorie 2; ... sous-categorie n)',
-        'Categorie 2' : 'Categorie 2 (includes sous-categorie 1;
-        sous-categorie 2; ... sous-categorie n)'}.
+        {'catégorie 1' : 'catégorie 1 (includes sous-catégorie 1;
+        sous- catégorie 2; ... sous-catégorie n)',
+        'catégorie 2' : 'catégorie 2 (includes sous-catégorie 1;
+        sous-catégorie 2; ... sous-catégorie n)'}.
 
     La variable "df_dict" correspond a un dictionnaire
-    de dataframes ou chaque clef est une categorie.
+    de dataframes ou chaque clef est une catégorie.
 
     La variable "colonne" correspond a la colonne du
-    df qui contient les sous-categories.
+    df qui contient les sous-catégories.
     """
 
     dictionnaire = {}
@@ -238,9 +266,9 @@ def classificateur_simple(
 
     La variable "multi_label_bool" est un booleen (valeur par defaut = False)
     qui indique si les probabilites doivent etre softmaxees
-    individuellement entre les categories (plusieurs categories
+    individuellement entre les catégories (plusieurs catégories
     possibles, True) ou qu'elles doivent equivaloir a un total de
-    1 (une seule categorie possible).
+    1 (une seule catégorie possible).
     """
 
     liste = []
@@ -250,7 +278,7 @@ def classificateur_simple(
     elif isinstance(categories, dict):
         cat = list(categories.values())
     else:
-        raise Exception("La variable 'categories' doit etre une liste ou un dictionnaire.")
+        raise Exception("La variable 'categories' doit être une liste ou un dictionnaire.")
         # ou gerer avec logger?
 
     for i, seq in enumerate(sequences):
@@ -287,17 +315,17 @@ def classificateur_complexe(
         {sequence: str, labels: [], scores: []}...].
 
     La variable "categories" est un dictionnaire ou chaque clef est
-    la representation textuelle de la categorie superieure et les valeurs
-    sont une liste des categories inferieures, p. ex. :
+    la representation textuelle de la catégorie superieure et les valeurs
+    sont une liste des catégories inferieures, p. ex. :
         'Social sciences': ['Psychology and cognitive sciences', 'Economics and
         business administration', 'Education', 'Sociology and related studies', ...],
     potentiellement issue de la fonction liste_colonne().
 
     La variable "multi_label_bool" est un booleen (valeur par defaut = True)
     qui indique si les probabilites doivent etre softmaxees
-    individuellement entre les categories (plusieurs categories
+    individuellement entre les catégories (plusieurs catégories
     possibles, True) ou qu'elles doivent equivaloir a un total de
-    1 (une seule categorie possible).
+    1 (une seule catégorie possible).
     """
 
     liste = []
@@ -321,19 +349,19 @@ def structurer_resultats(
     NIVEAU: str = None) -> pd.DataFrame:
 
     """Retourne un dataframe avec les colonnes organisees
-    selon l'identifiant unique, la categorie et le score.
+    selon l'identifiant unique, la catégorie et le score.
 
     La variable 'resultats_classification' est une liste de dicts
     resultant de la fonction classifier() de HuggingFace, ou chaque
     dict est compose des clefs {sequence: str, labels: [], scores: []}.
 
-    La variable 'dict_idu' represente les categories du CCRD
+    La variable 'dict_idu' represente les catégories du CCRD
     sous forme de dictionnaire "inverse", c'est-a-dire que le
     code unique et la description textuelle sont organisees sous
     le format {description: clef}.
 
     La variable 'limite' est un chiffre pour limiter le nombre
-    de categories inscrites dans le dataframe.
+    de catégories inscrites dans le dataframe.
 
     La variable "NIVEAU" est un string qui traduit le niveau
     de classification afin d'identifier les variables adequatement
@@ -387,6 +415,12 @@ def classification_large(
     a deux niveaux (p. ex. divisions et groupes) independamment
     l'un de l'autre.
     """
+
+    # inversion des dictionnaires de catégories pour mapping
+
+    inv_div = inverser_dictionnaire(divisions)
+
+    inv_gr = inverser_dictionnaire(groupes)
 
     # classification division
 
@@ -450,7 +484,7 @@ def classification_limitee(
         multi_label_bool=True
     )
 
-    # inversion des dictionnaires de categories pour mapping
+    # inversion des dictionnaires de catégories pour mapping
 
     inv_div = inverser_dictionnaire(divisions)
 
@@ -482,8 +516,8 @@ def classification_affinee_large(
     categories_specifiques: dict = None) -> pd.DataFrame:
 
     """Retourne un dataframe comportant les resultats d'une
-    classification affinee (ou les categories sont enrichies
-    de leurs sous-categories).
+    classification affinee (ou les catégories sont enrichies
+    de leurs sous-catégories).
     La deuxieme classification est effectuee sans egard pour
     le premier niveau de classification.
     """
@@ -535,14 +569,16 @@ def classification_affinee_large(
 
     return resultat_final
 
+# début nouvelle fonction pour classification affinée limitée
+
 def classification_affinee_limitee(
     sequences: list,
     categories_generales: dict,
     categories_specifiques: dict) -> pd.DataFrame:
 
     """Retourne un dataframe comportant les resultats d'une
-    classification affinee (ou les categories sont enrichies
-    de leurs sous-categories).
+    classification affinee (ou les catégories sont enrichies
+    de leurs sous-catégories).
     La deuxieme classification est effectuee selon les resultats
     du premier niveau de classification.
     """
@@ -570,10 +606,26 @@ def classification_affinee_limitee(
 
     deuxieme_niveau = classificateur_complexe(
         sequences=sequences,
-        categories=
+        categories=categories_specifiques,
+        multi_label_bool=True
     )
 
+    cat_idu_2 = codes_uniques_verbose(
+        niveau=categories_specifiques
+    )
 
+    top_n_deuxieme_niveau = structurer_resultats(
+        resultats_classification=deuxieme_niveau,
+        dict_idu=cat_idu_2,
+        limite=3,
+        NIVEAU='gr' # ajuster avec la fonction def_niveau()
+    )
+
+    resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+
+    return resultat_final
+
+# fin
 
 
 
@@ -700,6 +752,35 @@ cls_par_gr = liste_colonne(
 subcls_par_cls = liste_colonne(
     dictionnaire=crdc_cls, 
     colonne='subclass')
+
+# début nouveaux dicts pour classification verbose limitée
+
+groupes_verb_par_div_verb = categories_enrichies(
+    df_dict=crdc_div,
+    colonne_premier_niveau='group',
+    colonne_deuxieme_niveau='class'
+)
+
+groupes_sscls_par_div_verb = categories_enrichies(
+    df_dict=crdc_div,
+    colonne_premier_niveau='group',
+    colonne_deuxieme_niveau='subclass'
+)
+
+# scope de donnees (a transferer dans pipeline_config.py)
+
+MINI = DATA_DIR / 'smaller_sample.csv'
+SAMPLE = DATA_DIR / 'sample.csv'
+FULL = DATA_DIR / 'projets_comites_complets-ENFR.csv'
+
+"""/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
+DATASET = MINI
+
+scope_map = {
+    MINI: 'mini',
+    SAMPLE: 'sample',
+    FULL: 'full'
+}
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
