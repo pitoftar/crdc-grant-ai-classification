@@ -1,6 +1,7 @@
 cross-encoder/nli-deberta-v3-base
-MoritzLaurer/ModernBERT-large-zeroshot-v2.0
-MoritzLaurer/deberta-v3-large-zeroshot-v2.0
-MoritzLaurer/bge-m3-zeroshot-v2.0
-MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
 facebook/bart-large-mnli
+MoritzLaurer/bge-m3-zeroshot-v2.0
+MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli
+MoritzLaurer/deberta-v3-large-zeroshot-v2.0
+MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+MoritzLaurer/ModernBERT-large-zeroshot-v2.0
