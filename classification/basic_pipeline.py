@@ -113,6 +113,33 @@ def liste_colonne(
     
     return dictionnaire
 
+# début nouvelle fonction pour classification verbose affinée
+
+def categories_enrichies(
+    df_dict: dict[pd.DataFrame],
+    colonne_premier_niveau: str,
+    colonne_deuxieme_niveau: str
+) -> dict:
+    
+    dictionnaire = {}
+
+    for categorie, df in df_dict.items():
+        souscategories = np.unique(df[colonne_premier_niveau].values)
+        clef = f"{categorie} (includes {'; '.join(souscategories)})"
+
+        valeur = []
+
+        for souscat in souscategories:
+            df_spliced = df[df[colonne_premier_niveau] == souscat]
+            sous_souscat = np.unique(df_spliced[colonne_deuxieme_niveau].values)
+            valeur.append(f"{souscat} (includes {'; '.join(sous_souscat)})")
+
+        dictionnaire[clef] = valeur
+    
+    return dictionnaire
+
+# fin
+
 def titres_projets(
     source_donnees: pd.DataFrame,
     col_titre: str,
@@ -533,6 +560,8 @@ def classification_affinee_large(
 
     return resultat_final
 
+# début nouvelle fonction pour classification affinée limitée
+
 def classification_affinee_limitee(
     sequences: list,
     categories_generales: dict,
@@ -568,10 +597,26 @@ def classification_affinee_limitee(
 
     deuxieme_niveau = classificateur_complexe(
         sequences=sequences,
-        categories=
+        categories=categories_specifiques,
+        multi_label_bool=True
     )
 
+    cat_idu_2 = codes_uniques_verbose(
+        niveau=categories_specifiques
+    )
 
+    top_n_deuxieme_niveau = structurer_resultats(
+        resultats_classification=deuxieme_niveau,
+        dict_idu=cat_idu_2,
+        limite=3,
+        NIVEAU='gr' # ajuster avec la fonction def_niveau()
+    )
+
+    resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+
+    return resultat_final
+
+# fin
 
 
 
@@ -663,6 +708,20 @@ cls_verbose = categories_verboses(
 groupes_par_div = liste_colonne(crdc_div, 'group')
 cls_par_gr = liste_colonne(crdc_gr, 'class')
 subcls_par_cls = liste_colonne(crdc_cls, 'subclass')
+
+# début nouveaux dicts pour classification verbose limitée
+
+groupes_verb_par_div_verb = categories_enrichies(
+    df_dict=crdc_div,
+    colonne_premier_niveau='group',
+    colonne_deuxieme_niveau='class'
+)
+
+groupes_sscls_par_div_verb = categories_enrichies(
+    df_dict=crdc_div,
+    colonne_premier_niveau='group',
+    colonne_deuxieme_niveau='subclass'
+)
 
 # scope de donnees (a transferer dans pipeline_config.py)
 
