@@ -42,7 +42,25 @@ def codes_uniques(
     dataframe = dataframe.dropna()
     return dataframe.set_index(index)[colonne].to_dict()
 
-# codes uniques pour categories verboses (abandonne)
+# cas complexes de codes uniques
+
+def dict_mapping_codes_uniques_verbose(
+    donnees: dict
+) -> dict:
+    """Retourne un dictionnaire associant un code du CCRD a chaque
+    categorie verbose contenue dans une liste de valeurs.
+
+    La variable 'donnees' est un dictionnaire sous la forme
+    {categorie verbose: [sous-categorie verbose, sous-categorie verbose...]}
+    """
+
+    dictionnaire = {}
+
+    
+
+    return dictionnaire
+
+# codes uniques pour categories verboses
 
 def codes_uniques_verbose(
     niveau: dict) -> dict:
@@ -56,22 +74,31 @@ def codes_uniques_verbose(
     est concerne.
     """
 
-    if niveau == div_verbose or niveau == div_sscls:
-        mapping = divisions_inverse
-    elif niveau == gr_verbose or niveau == gr_sscls:
-        mapping = groupes_inverse
-    elif niveau == cls_verbose:
-        mapping = classes_inverse
+    if niveau == groupes_verb_par_div_verb or niveau == groupes_sscls_par_div_verb:
+        if niveau == groupes_sscls_par_div_verb:
+            dictionnaire = gr_sscls_verbose_codes_uniques
+        else:
+            dictionnaire = gr_verbose_codes_uniques
+
+        return dictionnaire
+
     else:
-        raise ValueError(f"Le niveau doit etre l'un des dictionnaires de categories affinees")
+        if def_niveau(niveau) == 'div': # affiner avec def_niveau()?
+            mapping = divisions_inverse
+        elif def_niveau(niveau) == 'gr':
+            mapping = groupes_inverse
+        elif def_niveau(niveau) == 'cls':
+            mapping = classes_inverse
+        else:
+            raise ValueError(f"Le niveau doit etre l'un des dictionnaires de catégories affinées")
 
-    dictionnaire = {}
+        dictionnaire = {}
 
-    for key, value in mapping.items():
-        if key in niveau:
-            dictionnaire[niveau[key]] = value
+        for key, value in mapping.items():
+            if key in niveau:
+                dictionnaire[niveau[key]] = value
 
-    return dictionnaire
+        return dictionnaire
 
 def def_niveau( # [WIP]
     donnees: dict) -> str:
@@ -111,10 +138,36 @@ def liste_colonne(
     de dataframes specifie par la variable "dictionnaire".
     """
 
-    for clef, valeur in dictionnaire.items():
-        dictionnaire[clef] = valeur[colonne].unique().tolist()
+    # for clef, valeur in dictionnaire.items():
+    #     dictionnaire[clef] = valeur[colonne].unique().tolist()
+    return {clef: valeur[colonne].unique().tolist() for clef, valeur in dictionnaire.items()}
+
+# début nouvelle fonction pour classification verbose affinée
+
+def categories_enrichies(
+    df_dict: dict[pd.DataFrame],
+    colonne_premier_niveau: str,
+    colonne_deuxieme_niveau: str
+) -> dict:
+    
+    dictionnaire = {}
+
+    for categorie, dafr in df_dict.items():
+        souscategories = np.unique(dafr[colonne_premier_niveau].values)
+        clef = f"{categorie} (includes {'; '.join(souscategories)})"
+
+        valeur = []
+
+        for souscat in souscategories:
+            df_spliced = dafr[dafr[colonne_premier_niveau] == souscat]
+            sous_souscat = np.unique(df_spliced[colonne_deuxieme_niveau].values)
+            valeur.append(f"{souscat} (includes {'; '.join(sous_souscat)})")
+
+        dictionnaire[clef] = valeur
     
     return dictionnaire
+
+# fin
 
 def titres_projets(
     source_donnees: pd.DataFrame,
@@ -168,8 +221,8 @@ def categories_verboses(
 
     dictionnaire = {}
 
-    for key, df in df_dict.items():
-        ar = np.array(df[colonne].values)
+    for key, cat_df in df_dict.items():
+        ar = np.array(cat_df[colonne].values)
         ar = np.unique(ar)
         ar = '; '.join(ar)
         string = f"{key} (includes {ar})"
@@ -208,7 +261,7 @@ def classificateur_simple(
     elif isinstance(categories, dict):
         cat = list(categories.values())
     else:
-        raise Exception("La variable 'categories' doit etre une liste ou un dictionnaire.")
+        raise Exception("La variable 'categories' doit être une liste ou un dictionnaire.")
         # ou gerer avec logger?
 
     for i, seq in enumerate(sequences):
@@ -282,19 +335,19 @@ def structurer_resultats(
     NIVEAU: str = None) -> pd.DataFrame:
 
     """Retourne un dataframe avec les colonnes organisees
-    selon l'identifiant unique, la categorie et le score.
+    selon l'identifiant unique, la catégorie et le score.
 
     La variable 'resultats_classification' est une liste de dicts
     resultant de la fonction classifier() de HuggingFace, ou chaque
     dict est compose des clefs {sequence: str, labels: [], scores: []}.
 
-    La variable 'dict_idu' represente les categories du CCRD
+    La variable 'dict_idu' represente les catégories du CCRD
     sous forme de dictionnaire "inverse", c'est-a-dire que le
     code unique et la description textuelle sont organisees sous
     le format {description: clef}.
 
     La variable 'limite' est un chiffre pour limiter le nombre
-    de categories inscrites dans le dataframe.
+    de catégories inscrites dans le dataframe.
 
     La variable "NIVEAU" est un string qui traduit le niveau
     de classification afin d'identifier les variables adequatement
@@ -443,8 +496,8 @@ def classification_affinee_large(
     categories_specifiques: dict = None) -> pd.DataFrame:
 
     """Retourne un dataframe comportant les resultats d'une
-    classification affinee (ou les categories sont enrichies
-    de leurs sous-categories).
+    classification affinee (ou les catégories sont enrichies
+    de leurs sous-catégories).
     La deuxieme classification est effectuee sans egard pour
     le premier niveau de classification.
     """
@@ -496,11 +549,63 @@ def classification_affinee_large(
 
     return resultat_final
 
+# début nouvelle fonction pour classification affinée limitée
 
+def classification_affinee_limitee(
+    sequences: list,
+    categories_generales: dict,
+    categories_specifiques: dict) -> pd.DataFrame:
 
+    """Retourne un dataframe comportant les resultats d'une
+    classification affinee (ou les catégories sont enrichies
+    de leurs sous-catégories).
+    La deuxieme classification est effectuee selon les resultats
+    du premier niveau de classification.
+    """
 
+    # classification premier niveau
 
+    premier_niveau = classificateur_simple(
+        sequences=sequences,
+        categories=categories_generales,
+        multi_label_bool=False
+    )
 
+    cat_idu_1 = codes_uniques_verbose(
+        niveau=categories_generales
+    )
+
+    top_n_premier_niveau = structurer_resultats(
+        resultats_classification=premier_niveau,
+        dict_idu=cat_idu_1,
+        limite=1,
+        NIVEAU='div' # ajuster avec la fonction def_niveau()
+    )
+
+    # classification deuxieme niveau
+
+    deuxieme_niveau = classificateur_complexe(
+        resultats=premier_niveau,
+        categories=categories_specifiques,
+        multi_label_bool=True
+    )
+
+    cat_idu_2 = codes_uniques_verbose(
+        niveau=categories_specifiques
+    )
+
+    top_n_deuxieme_niveau = structurer_resultats(
+        resultats_classification=deuxieme_niveau,
+        dict_idu=cat_idu_2,
+        limite=3,
+        NIVEAU='gr' # ajuster avec la fonction def_niveau()
+    )
+
+    resultat_final = top_n_premier_niveau.merge(top_n_deuxieme_niveau, on='sequence')
+
+    return resultat_final
+
+# fin
 
 
 
@@ -633,6 +738,40 @@ subcls_par_cls = liste_colonne(
     dictionnaire=crdc_cls, 
     colonne='subclass')
 
+groupes_verb_par_div_verb = categories_enrichies(
+    df_dict=crdc_div,
+    colonne_premier_niveau='group',
+    colonne_deuxieme_niveau='class'
+)
+
+groupes_sscls_par_div_verb = categories_enrichies(
+    df_dict=crdc_div,
+    colonne_premier_niveau='group',
+    colonne_deuxieme_niveau='subclass'
+)
+
+gr_verbose_inverse = {
+    v: k
+    for k, v in gr_verbose.items()
+}
+
+gr_verbose_codes_uniques = {
+    k: groupes_inverse[gr_verbose_inverse[k]]
+    for k in gr_verbose_inverse
+    if gr_verbose_inverse[k] in groupes_inverse
+}
+
+gr_sscls_verbose_inverse = {
+    v: k 
+    for k, v in gr_sscls.items()
+}
+
+gr_sscls_verbose_codes_uniques = {
+    k: groupes_inverse[gr_sscls_verbose_inverse[k]]
+    for k in gr_sscls_verbose_inverse
+    if gr_sscls_verbose_inverse[k] in groupes_inverse
+}
+
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
 
@@ -664,17 +803,51 @@ fine_tuning_map = {
 
 # niveaux pour def_niveau()
 
-collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
-collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
-collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
-collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
+collection_div = [
+    value for d in [
+        divisions,
+        divisions_inverse,
+        div_verbose,
+        div_sscls
+    ] for value in d.values()]
+
+collection_gr = [
+    value for d in [
+        groupes,
+        groupes_par_div,
+        groupes_verb_par_div_verb,
+        groupes_sscls_par_div_verb,
+        groupes_inverse, gr_verbose,
+        gr_sscls
+    ] for value in d.values()]
+
+collection_cls = [
+    value for d in [
+        classes,
+        classes_inverse,
+        cls_par_gr,
+        cls_verbose
+    ] for value in d.values()]
+
+collection_subscls = [
+    value for d in [
+        sous_classes,
+        subcls_par_cls
+    ] for value in d.values()]
 
 def main():
 
     # passage dans le classificateur en fonction
     # des parametres declares dans config.py
 
-    if FINE_TUNING == 'finet':
+    if FINE_TUNING == 'ltd+finet':
+        merged_datfra = classification_affinee_limitee(
+            sequences=seq_map[SEQ],
+            categories_generales=div_verbose,
+            categories_specifiques=groupes_verb_par_div_verb
+        )
+
+    elif FINE_TUNING == 'finet':
         merged_datfra = classification_affinee_large(
             sequences=seq_map[SEQ],
             categories_generales=div_verbose,
