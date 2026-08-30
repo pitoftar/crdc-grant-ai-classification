@@ -16,8 +16,7 @@ from pipeline_config import (
     DATASET,
     SCOPE,
     SEQ,
-    FINE_TUNING,
-    LEVEL
+    FINE_TUNING
 )
 
 # stocker les divisions et groupes uniques dans un dictionnaire
@@ -43,13 +42,13 @@ def codes_uniques(
     dataframe = dataframe.dropna()
     return dataframe.set_index(index)[colonne].to_dict()
 
-# codes uniques pour catégories verboses (abandonne)
+# codes uniques pour categories verboses (abandonne)
 
 def codes_uniques_verbose(
     niveau: dict) -> dict:
 
     """Retourne un dictionnaire qui applique un referencement
-    croise sur les catégories verboses (fine-tuning maison) et
+    croise sur les categories verboses (fine-tuning maison) et
     les codes uniques du CCRD.
 
     La variable 'niveau' est le dictionnaire des variables qui
@@ -83,11 +82,6 @@ def def_niveau( # [WIP]
 
     sample = next(iter(donnees))
 
-    collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
-    collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
-    collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
-    collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
-
     if sample in collection_div:
         nivo = 'div'
     elif sample in collection_gr:
@@ -117,10 +111,9 @@ def liste_colonne(
     de dataframes specifie par la variable "dictionnaire".
     """
 
-    for clef, valeur in dictionnaire.items():
-        dictionnaire[clef] = valeur[colonne].unique().tolist()
-    
-    return dictionnaire
+    # for clef, valeur in dictionnaire.items():
+    #     dictionnaire[clef] = valeur[colonne].unique().tolist()
+    return {clef: valeur[colonne].unique().tolist() for clef, valeur in dictionnaire.items()}
 
 # début nouvelle fonction pour classification verbose affinée
 
@@ -132,14 +125,14 @@ def categories_enrichies(
     
     dictionnaire = {}
 
-    for categorie, df in df_dict.items():
-        souscategories = np.unique(df[colonne_premier_niveau].values)
+    for categorie, dafr in df_dict.items():
+        souscategories = np.unique(dafr[colonne_premier_niveau].values)
         clef = f"{categorie} (includes {'; '.join(souscategories)})"
 
         valeur = []
 
         for souscat in souscategories:
-            df_spliced = df[df[colonne_premier_niveau] == souscat]
+            df_spliced = dafr[dafr[colonne_premier_niveau] == souscat]
             sous_souscat = np.unique(df_spliced[colonne_deuxieme_niveau].values)
             valeur.append(f"{souscat} (includes {'; '.join(sous_souscat)})")
 
@@ -178,68 +171,31 @@ def titres_projets(
 
     return titres
 
-# fonction pour rendre les resultats plus manipulables (actuellement pas utilisee)
-
-def offload_dans_dict(
-    liste_dicts_de_resultats: list,
-    NIVEAU: str # ajuster avec def_niveau()?
-) -> list:
-
-    """A partir d'une liste de dictionnaires obtenus comme
-    resultats de la fonction classifier(), retourne une liste
-    de dictionnaires ou les paires clef/valeurs sont des tuples (str, str).
-
-    La variable "liste_dicts_de_resultats" fournie a la fonction
-    correspond a une liste de dictionnaire structuree comme suit:
-        [{sequence: str, labels: [], scores: []},
-        {sequence: str, labels: [], scores: []}...].
-
-    La variable "NIVEAU" est un string qui traduit le niveau
-    de classification afin d'identifier les variables adequatement
-    (e.g. 'div', 'gr', etc.). Il alimente la nomenclature des clefs
-    (p.ex si NIVEAU='gr', les variables seront associees aux clefs
-    labels_gr_1, labels_gr_2 ... labels_gr_n).
-    """
-
-    liste = []
-
-    for resultat in liste_dicts_de_resultats:
-        rangee = {}
-        for k, v in resultat.items():
-            if isinstance(v, list):
-                for idx, val in enumerate(v, start=1):
-                    rangee.update({f"{k}_{NIVEAU}_{idx}": val})
-            else:
-                rangee.update({k : v})
-        liste.append(rangee)
-
-    return liste
-
-# fonction pour rencherir les catégories
+# fonction pour rencherir les categories
 
 def categories_verboses(
     df_dict: dict[pd.DataFrame],
     colonne: str) -> dict:
 
-    """Retourne un dictionnaire de catégories enrichies de
-    leurs sous-catégories a partir d'un dataframe sous
+    """Retourne un dictionnaire de categories enrichies de
+    leurs sous-categories a partir d'un dataframe sous
     la forme
-        {'catégorie 1' : 'catégorie 1 (includes sous-catégorie 1;
-        sous- catégorie 2; ... sous-catégorie n)',
-        'catégorie 2' : 'catégorie 2 (includes sous-catégorie 1;
-        sous-catégorie 2; ... sous-catégorie n)'}.
+        {'Categorie 1' : 'Categorie 1 (includes sous-categorie 1;
+        sous- categorie 2; ... sous-categorie n)',
+        'Categorie 2' : 'Categorie 2 (includes sous-categorie 1;
+        sous-categorie 2; ... sous-categorie n)'}.
 
     La variable "df_dict" correspond a un dictionnaire
-    de dataframes ou chaque clef est une catégorie.
+    de dataframes ou chaque clef est une categorie.
 
     La variable "colonne" correspond a la colonne du
-    df qui contient les sous-catégories.
+    df qui contient les sous-categories.
     """
 
     dictionnaire = {}
 
-    for key, df in df_dict.items():
-        ar = np.array(df[colonne].values)
+    for key, cat_df in df_dict.items():
+        ar = np.array(cat_df[colonne].values)
         ar = np.unique(ar)
         ar = '; '.join(ar)
         string = f"{key} (includes {ar})"
@@ -266,9 +222,9 @@ def classificateur_simple(
 
     La variable "multi_label_bool" est un booleen (valeur par defaut = False)
     qui indique si les probabilites doivent etre softmaxees
-    individuellement entre les catégories (plusieurs catégories
+    individuellement entre les categories (plusieurs categories
     possibles, True) ou qu'elles doivent equivaloir a un total de
-    1 (une seule catégorie possible).
+    1 (une seule categorie possible).
     """
 
     liste = []
@@ -289,9 +245,13 @@ def classificateur_simple(
             multi_label=multi_label_bool
         )
 
+        niv = def_niveau(
+            donnees=categories
+        )
+
         liste.append(resultat)
 
-        logger.info(f"Grant #{i+1} classification DONE\t\t\t{seq}")
+        logger.info(f"Grant #{i+1} classification ({niv}) DONE\t\t\t{seq}")
         # ajouter logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
         # a def main() pour creer document de log
     
@@ -315,24 +275,23 @@ def classificateur_complexe(
         {sequence: str, labels: [], scores: []}...].
 
     La variable "categories" est un dictionnaire ou chaque clef est
-    la representation textuelle de la catégorie superieure et les valeurs
-    sont une liste des catégories inferieures, p. ex. :
+    la representation textuelle de la categorie superieure et les valeurs
+    sont une liste des categories inferieures, p. ex. :
         'Social sciences': ['Psychology and cognitive sciences', 'Economics and
         business administration', 'Education', 'Sociology and related studies', ...],
     potentiellement issue de la fonction liste_colonne().
 
     La variable "multi_label_bool" est un booleen (valeur par defaut = True)
     qui indique si les probabilites doivent etre softmaxees
-    individuellement entre les catégories (plusieurs catégories
+    individuellement entre les categories (plusieurs categories
     possibles, True) ou qu'elles doivent equivaloir a un total de
-    1 (une seule catégorie possible).
+    1 (une seule categorie possible).
     """
 
     liste = []
 
     for i, resultat in enumerate(resultats):
-        categorie_probable = resultat['labels'][0]
-        score_cat_no_1 = resultat['scores'][0]
+        categorie_probable = resultat['labels'][0] # string indices must be integers (donne la mauvaise variable a la fonction?)
         titre = resultat['sequence']
 
         resultat_limite = classifier(titre, categories[categorie_probable], multi_label=multi_label_bool)
@@ -416,12 +375,6 @@ def classification_large(
     l'un de l'autre.
     """
 
-    # inversion des dictionnaires de catégories pour mapping
-
-    inv_div = inverser_dictionnaire(divisions)
-
-    inv_gr = inverser_dictionnaire(groupes)
-
     # classification division
 
     premier_niveau = classificateur_simple(
@@ -484,11 +437,11 @@ def classification_limitee(
         multi_label_bool=True
     )
 
-    # inversion des dictionnaires de catégories pour mapping
+    # inversion des dictionnaires de categories pour mapping
 
     inv_div = inverser_dictionnaire(divisions)
 
-    inv_gr = inverser_dictionnaire(groupes_par_div)
+    # inv_gr = inverser_dictionnaire(groupes_par_div) # probleme car unhashable values
 
     # top 1 div top 3 gr
 
@@ -501,7 +454,7 @@ def classification_limitee(
 
     top_n_deuxieme_niveau = structurer_resultats(
         resultats_classification=deuxieme_niveau,
-        dict_idu=inv_gr,
+        dict_idu=groupes_inverse,
         limite=3,
         NIVEAU='gr'
     )
@@ -605,7 +558,7 @@ def classification_affinee_limitee(
     # classification deuxieme niveau
 
     deuxieme_niveau = classificateur_complexe(
-        sequences=sequences,
+        resultats=sequences,
         categories=categories_specifiques,
         multi_label_bool=True
     )
@@ -634,14 +587,19 @@ def classification_affinee_limitee(
 
 
 
-
-
-
-
 # --- MAIN ---
 
+now = datetime.now().strftime('%Y%m%d-%H%M')
+
+# dossier pour journal
+
+journal_path = f"{OUT_DIR}/log"
+
+if not os.path.exists(journal_path):
+    os.makedirs(journal_path)
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename=f'{OUT_DIR}/classification_pipeline.log', level=logging.INFO)
+logging.basicConfig(filename=f'{journal_path}/{now}_classification_pipeline.log', level=logging.INFO)
 
 # pipeline pour classification
 
@@ -753,8 +711,6 @@ subcls_par_cls = liste_colonne(
     dictionnaire=crdc_cls, 
     colonne='subclass')
 
-# début nouveaux dicts pour classification verbose limitée
-
 groupes_verb_par_div_verb = categories_enrichies(
     df_dict=crdc_div,
     colonne_premier_niveau='group',
@@ -766,21 +722,6 @@ groupes_sscls_par_div_verb = categories_enrichies(
     colonne_premier_niveau='group',
     colonne_deuxieme_niveau='subclass'
 )
-
-# scope de donnees (a transferer dans pipeline_config.py)
-
-MINI = DATA_DIR / 'smaller_sample.csv'
-SAMPLE = DATA_DIR / 'sample.csv'
-FULL = DATA_DIR / 'projets_comites_complets-ENFR.csv'
-
-"""/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
-DATASET = MINI
-
-scope_map = {
-    MINI: 'mini',
-    SAMPLE: 'sample',
-    FULL: 'full'
-}
 
 # initialiser liste des titres seuls et initialiser liste des
 # titres avec comites entre parenthese (le cas echeant)
@@ -811,12 +752,26 @@ fine_tuning_map = {
     'finet': classification_affinee_large
 }
 
+# niveaux pour def_niveau()
+
+collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
+collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
+collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
+collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
+
 def main():
 
     # passage dans le classificateur en fonction
     # des parametres declares dans config.py
 
-    if FINE_TUNING == 'finet':
+    if FINE_TUNING == 'ltd_finet':
+        merged_datfra = classification_affinee_limitee(
+            sequences=seq_map[SEQ],
+            categories_generales=div_verbose,
+            categories_specifiques=groupes_verb_par_div_verb
+        )
+
+    elif FINE_TUNING == 'finet':
         merged_datfra = classification_affinee_large(
             sequences=seq_map[SEQ],
             categories_generales=div_verbose,
@@ -839,13 +794,11 @@ def main():
 
     # ajustement du titre du document de sortie en fonction du traitement de la classification
 
-    now = datetime.now().strftime('%Y%m%d-%H%M')
-
     if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
         os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
 
     merged_datfra.to_csv(
-        f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{LEVEL}_{SCOPE}.csv",
+        f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/{now}_{SEQ}_{FINE_TUNING}_{SCOPE}.csv",
         sep=';',
         mode='w',
         quotechar='"'
