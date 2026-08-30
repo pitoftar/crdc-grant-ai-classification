@@ -73,11 +73,6 @@ def codes_uniques_verbose(
 
     return dictionnaire
 
-collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
-collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
-collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
-collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
-
 def def_niveau( # [WIP]
     donnees: dict) -> str:
 
@@ -224,9 +219,13 @@ def classificateur_simple(
             multi_label=multi_label_bool
         )
 
+        niv = def_niveau(
+            donnees=categories
+        )
+
         liste.append(resultat)
 
-        logger.info(f"Grant #{i+1} classification ({categories}) DONE\t\t\t{seq}")
+        logger.info(f"Grant #{i+1} classification ({niv}) DONE\t\t\t{seq}")
         # ajouter logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
         # a def main() pour creer document de log
     
@@ -512,8 +511,17 @@ def classification_affinee_large(
 
 # --- MAIN ---
 
+now = datetime.now().strftime('%Y%m%d-%H%M')
+
+# dossier pour journal
+
+journal_path = f"{OUT_DIR}/log"
+
+if not os.path.exists(journal_path):
+    os.makedirs(journal_path)
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename=f'{OUT_DIR}/log/{now}_classification_pipeline.log', level=logging.INFO)
+logging.basicConfig(filename=f'{journal_path}/{now}_classification_pipeline.log', level=logging.INFO)
 
 # pipeline pour classification
 
@@ -654,6 +662,13 @@ fine_tuning_map = {
     'finet': classification_affinee_large
 }
 
+# niveaux pour def_niveau()
+
+collection_div = [value for d in [divisions, divisions_inverse, div_verbose, div_sscls] for value in d.values()]
+collection_gr = [value for d in [groupes, groupes_par_div, groupes_inverse, gr_verbose, gr_sscls] for value in d.values()]
+collection_cls = [value for d in [classes, classes_inverse, cls_par_gr, cls_verbose] for value in d.values()]
+collection_subscls = [value for d in [sous_classes, subcls_par_cls] for value in d.values()]
+
 def main():
 
     # passage dans le classificateur en fonction
@@ -681,8 +696,6 @@ def main():
         )
 
     # ajustement du titre du document de sortie en fonction du traitement de la classification
-
-    now = datetime.now().strftime('%Y%m%d-%H%M')
 
     if not os.path.exists(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/"):
         os.makedirs(f"{OUT_DIR}/{re.sub('/', '-', MODEL)}/")
