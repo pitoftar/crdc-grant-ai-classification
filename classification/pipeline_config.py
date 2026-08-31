@@ -7,7 +7,7 @@ OUT_DIR = BASE_DIR / 'out'
 
 # modele a utiliser (voir models.txt)
 
-MODEL = 'facebook/bart-large-mnli'
+MODEL = 'MoritzLaurer/ModernBERT-large-zeroshot-v2.0'
 
 # scope de donnees
 
@@ -22,9 +22,9 @@ scope_map = {
 }
 
 """/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
-DATASET = MINI
+DATASET = FULL
 
 """/!\ ↓↓↓ CHANGER LE PIPELINE ICI ↓↓↓ /!\ """
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
-FINE_TUNING = 'ltd+finet' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning, ltd+finet pour limitee avec fine-tuning
+FINE_TUNING = 'ltd' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning, ltd+finet pour limitee avec fine-tuning
 SCOPE = scope_map[DATASET]

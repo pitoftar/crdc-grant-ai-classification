@@ -1,6 +1,7 @@
 # --- preambule ---
 
 import os
+import sys
 import re
 import logging
 from transformers import pipeline
@@ -278,7 +279,7 @@ def classificateur_simple(
 
         liste.append(resultat)
 
-        logger.info(f"Grant #{i+1} classification ({niv}) DONE\t\t\t{seq}")
+        logger.info(f"Grant #{i+1} classification ({niv}) DONE")
         # ajouter logging.basicConfig(filename='classification_pipeline.log', level=logging.INFO)
         # a def main() pour creer document de log
     
@@ -324,7 +325,7 @@ def classificateur_complexe(
         resultat_limite = classifier(titre, categories[categorie_probable], multi_label=multi_label_bool)
 
         liste.append(resultat_limite)
-        logger.info(f"Grant #{i+1} limited group-level DONE\t\t\t{titre}")
+        logger.info(f"Grant #{i+1} limited group-level DONE")
 
     return liste
 
@@ -626,7 +627,16 @@ if not os.path.exists(journal_path):
     os.makedirs(journal_path)
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename=f'{journal_path}/{now}_classification_pipeline.log', level=logging.INFO)
+
+file_handler = logging.FileHandler(filename=f'{journal_path}/{now}_classification_pipeline.log')
+stdout_handler = logging.StreamHandler(stream=sys.stdout)
+handlers = [file_handler, stdout_handler]
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(message)s',
+    handlers=handlers
+)
 
 # pipeline pour classification
 
