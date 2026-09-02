@@ -22,9 +22,9 @@ scope_map = {
 }
 
 """/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
-DATASET = FULL
+DATASET = MINI # MINI, SAMPLE or FULL
 
 """/!\ ↓↓↓ CHANGER LE PIPELINE ICI ↓↓↓ /!\ """
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
-FINE_TUNING = 'ltd' # raw sans fine-tuning, ltd pour limitee, finet avec fine-tuning, ltd+finet pour limitee avec fine-tuning
+FINE_TUNING = 'ltd' # raw sans fine-tuning (mode par default), ltd pour limitee, finet avec fine-tuning, ltd+finet pour limitee avec fine-tuning
 SCOPE = scope_map[DATASET]
