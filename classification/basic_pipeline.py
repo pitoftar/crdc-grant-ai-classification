@@ -760,10 +760,9 @@ groupes_sscls_par_div_verb = categories_enrichies(
     colonne_deuxieme_niveau='subclass'
 )
 
-gr_verbose_inverse = {
-    v: k
-    for k, v in gr_verbose.items()
-}
+gr_verbose_inverse = inverser_dictionnaire(
+    dictionnaire=gr_verbose
+)
 
 gr_verbose_codes_uniques = {
     k: groupes_inverse[gr_verbose_inverse[k]]
@@ -771,10 +770,9 @@ gr_verbose_codes_uniques = {
     if gr_verbose_inverse[k] in groupes_inverse
 }
 
-gr_sscls_verbose_inverse = {
-    v: k 
-    for k, v in gr_sscls.items()
-}
+gr_sscls_verbose_inverse = inverser_dictionnaire(
+    dictionnaire=gr_sscls
+)
 
 gr_sscls_verbose_codes_uniques = {
     k: groupes_inverse[gr_sscls_verbose_inverse[k]]
