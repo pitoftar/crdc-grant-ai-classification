@@ -43,24 +43,6 @@ def codes_uniques(
     dataframe = dataframe.dropna()
     return dataframe.set_index(index)[colonne].to_dict()
 
-# cas complexes de codes uniques
-
-def dict_mapping_codes_uniques_verbose(
-    donnees: dict
-) -> dict:
-    """Retourne un dictionnaire associant un code du CCRD a chaque
-    categorie verbose contenue dans une liste de valeurs.
-
-    La variable 'donnees' est un dictionnaire sous la forme
-    {categorie verbose: [sous-categorie verbose, sous-categorie verbose...]}
-    """
-
-    dictionnaire = {}
-
-    
-
-    return dictionnaire
-
 # codes uniques pour categories verboses
 
 def codes_uniques_verbose(
@@ -84,7 +66,7 @@ def codes_uniques_verbose(
         return dictionnaire
 
     else:
-        if def_niveau(niveau) == 'div': # affiner avec def_niveau()?
+        if def_niveau(niveau) == 'div': 
             mapping = divisions_inverse
         elif def_niveau(niveau) == 'gr':
             mapping = groupes_inverse
@@ -508,7 +490,7 @@ def classification_affinee_large(
     premier_niveau = classificateur_simple(
         sequences=sequences,
         categories=categories_generales,
-        multi_label_bool=False
+        multi_label_bool=True # changer pour false
     )
 
     cat_idu_1 = codes_uniques_verbose(
@@ -628,7 +610,7 @@ if not os.path.exists(journal_path):
 
 logger = logging.getLogger(__name__)
 
-file_handler = logging.FileHandler(filename=f'{journal_path}/{now}_classification_pipeline.log')
+file_handler = logging.FileHandler(filename=f'{journal_path}/{now}_{MODEL}_classification_pipeline.log')
 stdout_handler = logging.StreamHandler(stream=sys.stdout)
 handlers = [file_handler, stdout_handler]
 
@@ -858,8 +840,8 @@ def main():
     elif FINE_TUNING == 'finet':
         merged_datfra = classification_affinee_large(
             sequences=seq_map[SEQ],
-            categories_generales=div_verbose,
-            categories_specifiques=gr_verbose
+            categories_generales=div_sscls,
+            categories_specifiques=gr_sscls
         )
     
     elif FINE_TUNING == 'ltd':
