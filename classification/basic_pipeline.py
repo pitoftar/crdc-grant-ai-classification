@@ -490,7 +490,7 @@ def classification_affinee_large(
     premier_niveau = classificateur_simple(
         sequences=sequences,
         categories=categories_generales,
-        multi_label_bool=True # changer pour false
+        multi_label_bool=False
     )
 
     cat_idu_1 = codes_uniques_verbose(
@@ -840,8 +840,8 @@ def main():
     elif FINE_TUNING == 'finet':
         merged_datfra = classification_affinee_large(
             sequences=seq_map[SEQ],
-            categories_generales=div_sscls,
-            categories_specifiques=gr_sscls
+            categories_generales=div_verbose,
+            categories_specifiques=gr_verbose
         )
     
     elif FINE_TUNING == 'ltd':

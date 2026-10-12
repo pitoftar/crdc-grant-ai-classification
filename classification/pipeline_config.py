@@ -3,11 +3,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATA_DIR = BASE_DIR / 'data'
-OUT_DIR = BASE_DIR / 'div_multilabel_refined_w_subclass' # changer pour out
+OUT_DIR = BASE_DIR / 'out'
 
 # modele a utiliser (voir models.txt)
 
-MODEL = 'cross-encoder/nli-deberta-v3-base'
+MODEL = 'MoritzLaurer/ModernBERT-large-zeroshot-v2.0'
 
 # scope de donnees
 
@@ -22,9 +22,9 @@ scope_map = {
 }
 
 """/!\ ↓↓↓ CHANGER LA SOURCE DES DONNEES ICI ↓↓↓ /!\ """
-DATASET = FULL # MINI, SAMPLE or FULL
+DATASET = MINI # MINI, SAMPLE or FULL
 
 """/!\ ↓↓↓ CHANGER LE PIPELINE ICI ↓↓↓ /!\ """
 SEQ = 'tc' # tc pour titre et comité, t pour titre seulement
-FINE_TUNING = 'finet' # raw sans fine-tuning (mode par default), ltd pour limitee, finet avec fine-tuning, ltd+finet pour limitee avec fine-tuning
+FINE_TUNING = 'ltd' # raw sans fine-tuning (mode par default), ltd pour limitee, finet avec fine-tuning, ltd+finet pour limitee avec fine-tuning
 SCOPE = scope_map[DATASET]
