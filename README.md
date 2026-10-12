@@ -44,7 +44,7 @@ L'expérience a été réalisée avec les présupposés suivants :
 #### Classification sans exemple
 
 Afin d'obtenir des résultats plus robustes, plus facilement défendables et plus aisément reproductibles qu'en faisant appel à des LLM en ligne.
-En l'absence d'un corpus d'entraînement annoté portant sur les données utilisées pour la recherche, il fallait faire usage de grands modèles de langage (100M+ paramètres) spécialisés pour la « classification _zero-shot_ » (_zero-shot classificatin_, ZSC) ou « classification sans exemple ».
+En l'absence d'un corpus d'entraînement annoté portant sur les données utilisées pour la recherche, il fallait faire usage de grands modèles de langage (100M+ paramètres) spécialisés pour la « classification _zero-shot_ » (_zero-shot classification_, ZSC) ou « classification sans exemple ».
 
 En raison de sa licence ouverte (au moment de rédiger ceci à l'automne 2026) et de l'accès privilégié qu'elle offre à une variété de modèles de langage, la bibliothèque `transformers` de HuggingFace s'est présentée comme une solution intéressante.
 Cette librairie offre nativement une méthode de ZSC, basée sur des méthodes d'inférence du langage naturel (_natural language inference_, NLI), c'est-à-dire de déterminer la probabilité d'assentiment (_agreement_) entre une prémice et une hypothèse.
