@@ -82,6 +82,9 @@ Dans cette méthode, les étiquettes des groupes sont ajoutés à celles des div
 Par exemple, plutôt de considérer la catégorie « Engineering and technology », le modèle considère une catégorie qui se présente un peu comme suit : « Engineering and technology (includes Civil engineering, maritime engineering, transport engineering, and mining engineering, Industrial, systems and processes engineering, Electrical engineering, computer engineering, and information engineering ... ) ».
 Similairement, les groupes sont enrichis des classes, qui constituent le niveau inférieur.
 
+Une méthode utilisant la classification limitée par division et les catégories enrichies a également été mise en place.
+Elle est identifiée comme la « classification raffinée limitée » (`ltd+finet`).
+
 Une variante de cette méthode a également été testée en alimentant des divisions avec toutes leurs sous-classes.
 Les étiquettes devenaient cepndant trop longues et dépassaient la fenêtre de contexte du modèle (variable, mais souvent autour de 512 tokens), ce qui a grandement réduit la précision de la tâche de classification.
 
@@ -105,6 +108,54 @@ Le programme est écrit d'une manière à permettre une grande interchangeabilit
 
 À venir (un fichier `requirements.txt` doit être généré à partir du script de classification)
 
+## Structure du dépôt
+
+```
+.
+├── classification
+│   ├── basic_pipeline.py
+│   ├── fr_test_pipeline.py
+│   ├── models.txt
+│   ├── pipeline_config.py
+│   └── snapshot.py
+├── data
+├── out
+│   ├── div_multilabel_refined_w_subclass
+│   │   ├── cross-encoder-nli-deberta-v3-base
+│   │   ├── facebook-bart-large-mnli
+│   │   ├── log
+│   │   ├── MoritzLaurer-bge-m3-zeroshot-v2.0
+│   │   ├── MoritzLaurer-DeBERTa-v3-base-mnli-fever-anli
+│   │   ├── MoritzLaurer-deberta-v3-large-zeroshot-v2.0
+│   │   ├── MoritzLaurer-mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+│   │   └── MoritzLaurer-ModernBERT-large-zeroshot-v2.0
+│   ├── log
+│   └── models
+│       ├── cross-encoder-nli-deberta-v3-base
+│       ├── facebook-bart-large-mnli
+│       ├── MoritzLaurer-bge-m3-zeroshot-v2.0
+│       ├── MoritzLaurer-DeBERTa-v3-base-mnli-fever-anli
+│       ├── MoritzLaurer-deberta-v3-large-zeroshot-v2.0
+│       ├── MoritzLaurer-mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+│       └── MoritzLaurer-ModernBERT-large-zeroshot-v2.0
+└── results
+    ├── experimental
+    ├── finet
+    ├── ltd
+    ├── ltd+finet
+    └── raw
+```
+
+Le dossier `out` contient tous les fichiers de sortie produits pendant le développemement du script.
+Ils sont classés par modèle, puis par date, puis par la méthode, et finalement par la taille du jeu de données utilisé (petit échantillon, moyen échantillon, jeu de données complet).
+
+Le dossier `results` ne contient que les fichiers qui correspondent à l'**itération la plus récente** de l'opération de classification.
+Les résultats sont classés par méthode, puis par modèle.
+Tous les fichiers de sortie présents dans ce dossier représentent le jeu de données complet.
+**Il n'y a qu'un résultat par méthode par modèle** dans ce dossier.
+
+Le sous-dossier `experimental` dans le dossier `results` correspond à une classification où les étiquettes disciplinaire sont enrichies à l'aide de leurs sous-classes, jugée moins précise.
+
 ## Problèmes connus
 
 ### Raffinement
@@ -126,3 +177,4 @@ Le programme est écrit d'une manière à permettre une grande interchangeabilit
 
 - Lors de l'utilisation de la méthode expérimentale d'enrichissement des divisions et groupes par sous-classes, le fichier de sortie n'est pas propre et donne les catégories fournies au modèle plutôt que les catégories abrégées : i. e. « `div` (includes `scls`, `scls`, `scls`...) » plutôt que « `div` ». Cette erreur est probablement dûe à une mauvaise association entre les catégories données en entrée au modèle et le dictionnaire utilisé pour faire l'association entre celles-ci et les catégories à afficher en sortie.
 - Les fichiers de sortie sont actuellement organisés selon le modèle utilisé pour la classification. Il ne s'agit peut-être pas de la méthode la plus pratique ou souhaitable pour la réutilisation des données. Une nouvelle organisation a été réalisée manuellement dans le dossier `results` pour faciliter l'utilisation des fichiers de sortie pour l'analyse.
+- La production de la dernière version de la classification (dans le dossier `results`) n'est actuellement pas automatisée, alors qu'elle pourrait l'être.
