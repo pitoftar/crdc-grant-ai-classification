@@ -17,6 +17,7 @@ Son usage est par ailleurs limité à l'usage dans le cadre de ce projet en part
 
 Le projet aurait certainement été améliorable grâce à l'apport de LLM conversationnels en ligne (e.g. ChatGPT, Claude).
 J'ai cependant décidé de le réaliser sans l'aide de ces systèmes pour plusieurs raisons.
+
 D'abord, je souhaitais être en mesure de comprendre l'ensemble du code afin de le décrire et le défendre de manière appropriée dans les productions scientifiques (présentations et articles) en découlant éventuellement.
 Ensuite, la compréhension profonde de la logique derrière le code et l'utilisation de structures algorithmiques et logiques que je maîtrise, même si elles ne constituent pas la manière la plus efficiente de réaliser la tâche, me permet de cibler plus naturellement la source des bogues et dysfonctionnements du code.
 Finalement, si la programmation entièrement manuelle de cette section du code a certainement été plus chronophage qu'elle n'aurait pu l'être avec l'aide d'un LLM, je suis intimement convaincu que les aptitudes développées et la compréhension du code permettront de faciliter le processus de présentation des résultats et de lui permettre de gagner en robustesse.
@@ -67,6 +68,7 @@ La catégorisation des comités comme significatifs ou non-significatifs a été
 Par défaut, les projets étaient classifiés selon leur division et selon leur comité, indépendamment l'une de l'autre.
 Autrement dit, le modèle examinait le titre du projet et vérifiait par NLI sa correspondance avec chacune des 6 divisions.
 Il effectuait ensuite la même tâche avec chacun des 43 groupes.
+
 La réflexion derrière ce choix était la suivante : devant des division aussi larges que « Social sciences » ou « Engineering and technology », il semblait possible que le modèle associe le titre d'un projet avec une catégorie générale qui semble convenir adéquatement en absence de plus de détails.
 Il pourrait ensuite découvrir, parmi les 43 groupes, une catégorie correspondant mieux au projet d'après son titre.
 Par exemple, un projet intitulé « Quelles sont les mathématiques utilisées par les ingénieurs au quotidien? Une étude sur les pratiques des ingénieurs pour déterminer leurs besoins mathématiques » et enrichi du comité « Education and social work » pourrait être catégorisé dans la division « Engineering and technology » par le modèle, en raison de la présence des termes « ingénieurs » et « mathématiques », mais pourrait être classé dans le groupe « Education », dont l'imbrication dans la division « Social sciences » n'est pas évidente si l'on considère seulement le premier niveau de la classification.
