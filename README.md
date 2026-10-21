@@ -18,9 +18,15 @@ Son usage est par ailleurs limité à l'usage dans le cadre de ce projet en part
 Le projet aurait certainement été améliorable grâce à l'apport de LLM conversationnels en ligne (e.g. ChatGPT, Claude).
 J'ai cependant décidé de le réaliser sans l'aide de ces systèmes pour plusieurs raisons.
 
-D'abord, je souhaitais être en mesure de comprendre l'ensemble du code afin de le décrire et le défendre de manière appropriée dans les productions scientifiques (présentations et articles) en découlant éventuellement.
-Ensuite, la compréhension profonde de la logique derrière le code et l'utilisation de structures algorithmiques et logiques que je maîtrise, même si elles ne constituent pas la manière la plus efficiente de réaliser la tâche, me permet de cibler plus naturellement la source des bogues et dysfonctionnements du code.
-Finalement, si la programmation entièrement manuelle de cette section du code a certainement été plus chronophage qu'elle n'aurait pu l'être avec l'aide d'un LLM, je suis intimement convaincu que les aptitudes développées et la compréhension du code permettront de faciliter le processus de présentation des résultats et de lui permettre de gagner en robustesse.
+Il s'agit d'abord d'une question de **responsabilité**.
+Je souhaitais être en mesure de comprendre l'ensemble du code afin de le décrire et le défendre de manière appropriée dans les productions scientifiques (présentations et articles) en découlant éventuellement.
+
+Ensuite, je souhaitais faciliter la **maintenance**.
+La compréhension profonde de la logique derrière le code et l'utilisation de structures algorithmiques et logiques que je maîtrise, même si elles ne constituent pas la manière la plus efficiente de réaliser la tâche, me permet de cibler et régler plus naturellement la source des bogues et dysfonctionnements du code.
+
+Finalement, j'ai pris cette décision dans une optique de **formation**.
+Si la programmation entièrement manuelle de cette section du code a certainement été plus chronophage qu'elle n'aurait pu l'être avec l'aide d'un LLM, je suis intimement convaincu que les aptitudes développées et la compréhension du code permettront de faciliter le processus de présentation des résultats et de lui permettre de gagner en robustesse.
+Cela peut paraître contre-intuitif, mais la programmation manuelle du flux de travail me permettra sans doute de gagner du temps au moment de rédiger des notes méthodologiques, comme celles-ci.
 
 ## Utilisation
 
@@ -44,14 +50,14 @@ L'expérience a été réalisée avec les présupposés suivants :
 
 #### Classification sans exemple
 
-Afin d'obtenir des résultats plus robustes, plus facilement défendables et plus aisément reproductibles qu'en faisant appel à des LLM en ligne.
+Afin d'obtenir des résultats plus robustes, plus facilement défendables et plus aisément reproductibles qu'en faisant appel à des LLM en ligne, des modèles exécutés en local ont été employés.
 En l'absence d'un corpus d'entraînement annoté portant sur les données utilisées pour la recherche, il fallait faire usage de grands modèles de langage (100M+ paramètres) spécialisés pour la « classification _zero-shot_ » (_zero-shot classification_, ZSC) ou « classification sans exemple ».
 
 En raison de sa licence ouverte (au moment de rédiger ceci à l'automne 2026) et de l'accès privilégié qu'elle offre à une variété de modèles de langage, la bibliothèque `transformers` de HuggingFace s'est présentée comme une solution intéressante.
-Cette librairie offre nativement une méthode de ZSC, basée sur des méthodes d'inférence du langage naturel (_natural language inference_, NLI), c'est-à-dire de déterminer la probabilité d'assentiment (_agreement_) entre une prémice et une hypothèse.
-Dans la tâche courante, les titres des projets constituent la prémice et les classes du CCRD constituent autant d'hypothèses, par rapport auxquelles le LLM évalue l'assentiment.
+Cette librairie offre nativement une méthode de ZSC, basée sur des méthodes d'inférence du langage naturel (_natural language inference_, NLI), c'est-à-dire de déterminer la probabilité d'assentiment (_agreement_) entre une prémisse et une hypothèse.
+Dans la tâche courante, les titres des projets constituent la prémisse et les classes du CCRD constituent autant d'hypothèses, par rapport auxquelles le LLM évalue l'assentiment.
 
-La sortie est un fichier `csv` comportant la séquence évaluée (titre et comité, le cas échéant), les trois divisions jugées les plus probables de constituer une catégorisation adéquate pour le projet et le score d'assentiment, ainsi que les cinq groupes les plus probable et le score d'assentiment.
+La sortie est un fichier `csv` comportant la séquence évaluée (titre et comité, le cas échéant), la ou les divisions (jusqu'à 3) jugées les plus probables de constituer une catégorisation adéquate pour le projet et le score d'assentiment, ainsi que les quelques groupes (entre 3 et 5) les plus probable et le score d'assentiment.
 
 #### Raffinement des catégories
 
