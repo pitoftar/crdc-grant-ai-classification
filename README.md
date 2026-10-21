@@ -101,7 +101,7 @@ Les étiquettes devenaient cepndant trop longues et dépassaient la fenêtre de 
 Le travail est effectué sur les produits de la recherche d'une université québécoise (l'Université de Montréal), ce qui signifie que le jeu de données comporte un certain nombre de projets dont le titre est en français.
 La plupart des modèles de langage produisent des résultats moins précis sur les corpus non-anglophones, d'où le choix de tester également des LLM multilingues sur le corpus.
 
-Un [flux de travail expérimental](https://github.com/pitoftar/crdc-grant-ai-classification/blob/main/classification/fr_test_pipeline.py) permettant de classifier indépendamment les projets en anglais a été esquissé, mais non abouti.
+Un [flux de travail expérimental](https://github.com/pitoftar/crdc-grant-ai-classification/blob/main/classification/fr_test_pipeline.py) permettant de classifier indépendamment les projets en anglais et ceux en français a été esquissé, mais non abouti.
 Il pourrait éventuellement être implémenté.
 
 ### Modèles
