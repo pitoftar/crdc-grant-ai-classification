@@ -1,0 +1,1000 @@
+{
+ "id_response": "resp_08e8943520da991f006b045d4d27bc87d290eb95a3d3e5ad55",
+ "model": "gpt-6-luna",
+ "usage": {
+  "input_tokens": 1516,
+  "input_tokens_details": {
+   "cache_write_tokens": 0,
+   "cached_tokens": 1513,
+   "cache_write_tokens_details": {
+    "ttl_12h_tokens": 0,
+    "ttl_30m_tokens": 0
+   }
+  },
+  "output_tokens": 3361,
+  "output_tokens_details": {
+   "reasoning_tokens": 594
+  },
+  "total_tokens": 4877
+ },
+ "input": "850 | Les trajectoires professionnelles des policiers du Québec : phase 2 | Law and criminology\n851 | Redefining blood pressure: How novel views of the arterial tree can lead to better cardiovascular risk stratification | Clinical Investigation – Cardiovascular Systems\n852 | Reducing the burden of hypoglycemia for persons living with type 1 diabetes | nan\n853 | The energy-based and feature tracking motion systems and their interactions | Biological Systems and Functions\n854 | Adoptive transfers of in vitro differentiated plasmacytoid dendritic cells to prevent acute lymphoblastic leukemia relapse: mechanisms and biomarkers of sensitivity | Cancer Progression & Therapeutics\n855 | Replacement and upgrade of the Optical and Infrared Cameras for Observatoire du Mont-Mégantic | Physics\n856 | Stochastic Discount Factors, Risk Factors and Performance Evaluation | Economics\n857 | Precision digital twin of production machines for sustained high accuracy and traceable part conformity | nan\n858 | Non-line-of-sight Imaging for Advanced Automotive Sensing | nan\n859 | Le nouvel électeur économique | Political science and public administration\n860 | CB1 receptors regulate NMJ denervation and repair | Systems & Circuits Neurosciences\n861 | Influence of Lipid Matrix on Ion Channel Oligomerization and Function | Chemistry\n862 | Composition musicale immersive et développement de trajectoires 3D, basées sur l'analyse perceptive | Fine Arts, Research-Creation\n863 | Valorisation des données d'exécution de projets | Civil, Industrial and Systems Engineering\n864 | Innovative Steel Braced Frame Systems for Tall Buildings in Seismic Active Regions | Civil, Industrial and Systems Engineering\n865 | Multiscale modelling of aircraft and rocket emissions using high-fidelity numerical simulations and machine learning | nan\n866 | Coronavirus Crisis Competence Among Sexual and Gender Minorities | Gender, Sex & Health\n867 | From Alterlife to Alterfutures: Contemporary Asian Women's Environmental Moving-Image Arts | Multidisciplinary or interdisciplinary humanities\n868 | A FOCUS on youth mental health and substance use-related outcomes, inequities and trajectories during COVID-19 and beyond: A mixed-methods study in Canada and France | nan\n869 | Sleep, performance and development | Biological Systems and Functions\n870 | Molecular insights into the targeting of proteins to the inner nuclear membrane | Genes, Cells and Molecules\n871 | Les pratiques pédagogiques qui favorisent l'inclusion socioculturelle et scolaire d'élèves immigrants nouvellement arrivés au Québec : regards croisés d'enseignants et d'élèves | Education and social work\n872 | Control of collective dynamics via mean field and and inverse mean field game theory | nan\n873 | #WeFeedYou, and yet...: How are temporary migrant workers' food security, nutrition and health shaped in Quebec's agri-food system - A participatory action research multiple-case study | nan\n874 | Delinquent or victim? Teenage girls' experiences of child protection intervention due to concerns for sexual exploitation | Education and social work",
+ "data": {
+  "results": [
+   {
+    "id": 850,
+    "div": [
+     {
+      "code": "RDF50",
+      "score": "0.78"
+     },
+     {
+      "code": "RDF60",
+      "score": "0.14"
+     },
+     {
+      "code": "RDF30",
+      "score": "0.08"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF504",
+      "score": "0.46"
+     },
+     {
+      "code": "RDF505",
+      "score": "0.30"
+     },
+     {
+      "code": "RDF506",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF509",
+      "score": "0.07"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.05"
+     }
+    ]
+   },
+   {
+    "id": 851,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.76"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.16"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.08"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF302",
+      "score": "0.51"
+     },
+     {
+      "code": "RDF303",
+      "score": "0.25"
+     },
+     {
+      "code": "RDF301",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF207",
+      "score": "0.07"
+     },
+     {
+      "code": "RDF106",
+      "score": "0.04"
+     }
+    ]
+   },
+   {
+    "id": 852,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.76"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.14"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.10"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF303",
+      "score": "0.38"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.31"
+     },
+     {
+      "code": "RDF301",
+      "score": "0.20"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.07"
+     },
+     {
+      "code": "RDF304",
+      "score": "0.04"
+     }
+    ]
+   },
+   {
+    "id": 853,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.40"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.34"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.26"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF301",
+      "score": "0.31"
+     },
+     {
+      "code": "RDF106",
+      "score": "0.27"
+     },
+     {
+      "code": "RDF103",
+      "score": "0.20"
+     },
+     {
+      "code": "RDF207",
+      "score": "0.14"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 854,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.82"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.05"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF301",
+      "score": "0.39"
+     },
+     {
+      "code": "RDF304",
+      "score": "0.28"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.17"
+     },
+     {
+      "code": "RDF106",
+      "score": "0.11"
+     },
+     {
+      "code": "RDF303",
+      "score": "0.05"
+     }
+    ]
+   },
+   {
+    "id": 855,
+    "div": [
+     {
+      "code": "RDF10",
+      "score": "0.66"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.29"
+     },
+     {
+      "code": "RDF60",
+      "score": "0.05"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF103",
+      "score": "0.68"
+     },
+     {
+      "code": "RDF203",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF212",
+      "score": "0.09"
+     },
+     {
+      "code": "RDF102",
+      "score": "0.06"
+     },
+     {
+      "code": "RDF105",
+      "score": "0.04"
+     }
+    ]
+   },
+   {
+    "id": 856,
+    "div": [
+     {
+      "code": "RDF50",
+      "score": "0.91"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.06"
+     },
+     {
+      "code": "RDF60",
+      "score": "0.03"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF502",
+      "score": "0.70"
+     },
+     {
+      "code": "RDF101",
+      "score": "0.14"
+     },
+     {
+      "code": "RDF506",
+      "score": "0.07"
+     },
+     {
+      "code": "RDF504",
+      "score": "0.05"
+     },
+     {
+      "code": "RDF509",
+      "score": "0.04"
+     }
+    ]
+   },
+   {
+    "id": 857,
+    "div": [
+     {
+      "code": "RDF20-21",
+      "score": "0.88"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.08"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.04"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF202",
+      "score": "0.42"
+     },
+     {
+      "code": "RDF203",
+      "score": "0.20"
+     },
+     {
+      "code": "RDF204",
+      "score": "0.18"
+     },
+     {
+      "code": "RDF206",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF102",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 858,
+    "div": [
+     {
+      "code": "RDF20-21",
+      "score": "0.52"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.40"
+     },
+     {
+      "code": "RDF30",
+      "score": "0.08"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF203",
+      "score": "0.30"
+     },
+     {
+      "code": "RDF102",
+      "score": "0.27"
+     },
+     {
+      "code": "RDF103",
+      "score": "0.22"
+     },
+     {
+      "code": "RDF202",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF207",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 859,
+    "div": [
+     {
+      "code": "RDF50",
+      "score": "0.91"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.05"
+     },
+     {
+      "code": "RDF60",
+      "score": "0.04"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF506",
+      "score": "0.43"
+     },
+     {
+      "code": "RDF502",
+      "score": "0.32"
+     },
+     {
+      "code": "RDF504",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF509",
+      "score": "0.08"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.04"
+     }
+    ]
+   },
+   {
+    "id": 860,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.70"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.25"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.05"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF301",
+      "score": "0.48"
+     },
+     {
+      "code": "RDF106",
+      "score": "0.25"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF304",
+      "score": "0.08"
+     },
+     {
+      "code": "RDF207",
+      "score": "0.06"
+     }
+    ]
+   },
+   {
+    "id": 861,
+    "div": [
+     {
+      "code": "RDF10",
+      "score": "0.52"
+     },
+     {
+      "code": "RDF30",
+      "score": "0.40"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.08"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF104",
+      "score": "0.38"
+     },
+     {
+      "code": "RDF301",
+      "score": "0.23"
+     },
+     {
+      "code": "RDF106",
+      "score": "0.19"
+     },
+     {
+      "code": "RDF103",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF304",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 862,
+    "div": [
+     {
+      "code": "RDF60",
+      "score": "0.81"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.11"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.08"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF604",
+      "score": "0.67"
+     },
+     {
+      "code": "RDF508",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF602",
+      "score": "0.09"
+     },
+     {
+      "code": "RDF203",
+      "score": "0.07"
+     },
+     {
+      "code": "RDF603",
+      "score": "0.04"
+     }
+    ]
+   },
+   {
+    "id": 863,
+    "div": [
+     {
+      "code": "RDF20-21",
+      "score": "0.78"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.10"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF202",
+      "score": "0.38"
+     },
+     {
+      "code": "RDF203",
+      "score": "0.22"
+     },
+     {
+      "code": "RDF201",
+      "score": "0.18"
+     },
+     {
+      "code": "RDF102",
+      "score": "0.14"
+     },
+     {
+      "code": "RDF502",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 864,
+    "div": [
+     {
+      "code": "RDF20-21",
+      "score": "0.94"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.04"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.02"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF201",
+      "score": "0.70"
+     },
+     {
+      "code": "RDF202",
+      "score": "0.13"
+     },
+     {
+      "code": "RDF204",
+      "score": "0.08"
+     },
+     {
+      "code": "RDF206",
+      "score": "0.06"
+     },
+     {
+      "code": "RDF208",
+      "score": "0.03"
+     }
+    ]
+   },
+   {
+    "id": 865,
+    "div": [
+     {
+      "code": "RDF20-21",
+      "score": "0.47"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.42"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.11"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF208",
+      "score": "0.27"
+     },
+     {
+      "code": "RDF103",
+      "score": "0.25"
+     },
+     {
+      "code": "RDF203",
+      "score": "0.18"
+     },
+     {
+      "code": "RDF102",
+      "score": "0.17"
+     },
+     {
+      "code": "RDF201",
+      "score": "0.13"
+     }
+    ]
+   },
+   {
+    "id": 866,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.51"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.43"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.06"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF303",
+      "score": "0.33"
+     },
+     {
+      "code": "RDF504",
+      "score": "0.29"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.18"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF509",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 867,
+    "div": [
+     {
+      "code": "RDF60",
+      "score": "0.77"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.18"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.05"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF604",
+      "score": "0.43"
+     },
+     {
+      "code": "RDF602",
+      "score": "0.23"
+     },
+     {
+      "code": "RDF504",
+      "score": "0.16"
+     },
+     {
+      "code": "RDF508",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF601",
+      "score": "0.06"
+     }
+    ]
+   },
+   {
+    "id": 868,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.51"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.46"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.03"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF303",
+      "score": "0.32"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.28"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.18"
+     },
+     {
+      "code": "RDF504",
+      "score": "0.14"
+     },
+     {
+      "code": "RDF509",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 869,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.50"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.43"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.07"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF301",
+      "score": "0.33"
+     },
+     {
+      "code": "RDF106",
+      "score": "0.31"
+     },
+     {
+      "code": "RDF303",
+      "score": "0.18"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.06"
+     }
+    ]
+   },
+   {
+    "id": 870,
+    "div": [
+     {
+      "code": "RDF30",
+      "score": "0.48"
+     },
+     {
+      "code": "RDF10",
+      "score": "0.44"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.08"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF301",
+      "score": "0.38"
+     },
+     {
+      "code": "RDF106",
+      "score": "0.31"
+     },
+     {
+      "code": "RDF304",
+      "score": "0.17"
+     },
+     {
+      "code": "RDF104",
+      "score": "0.09"
+     },
+     {
+      "code": "RDF302",
+      "score": "0.05"
+     }
+    ]
+   },
+   {
+    "id": 871,
+    "div": [
+     {
+      "code": "RDF50",
+      "score": "0.90"
+     },
+     {
+      "code": "RDF60",
+      "score": "0.07"
+     },
+     {
+      "code": "RDF30",
+      "score": "0.03"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF503",
+      "score": "0.62"
+     },
+     {
+      "code": "RDF504",
+      "score": "0.22"
+     },
+     {
+      "code": "RDF509",
+      "score": "0.08"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.05"
+     },
+     {
+      "code": "RDF506",
+      "score": "0.03"
+     }
+    ]
+   },
+   {
+    "id": 872,
+    "div": [
+     {
+      "code": "RDF10",
+      "score": "0.56"
+     },
+     {
+      "code": "RDF50",
+      "score": "0.28"
+     },
+     {
+      "code": "RDF20-21",
+      "score": "0.16"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF101",
+      "score": "0.51"
+     },
+     {
+      "code": "RDF502",
+      "score": "0.22"
+     },
+     {
+      "code": "RDF102",
+      "score": "0.12"
+     },
+     {
+      "code": "RDF506",
+      "score": "0.09"
+     },
+     {
+      "code": "RDF202",
+      "score": "0.08"
+     }
+    ]
+   },
+   {
+    "id": 873,
+    "div": [
+     {
+      "code": "RDF50",
+      "score": "0.43"
+     },
+     {
+      "code": "RDF40",
+      "score": "0.34"
+     },
+     {
+      "code": "RDF30",
+      "score": "0.23"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF401",
+      "score": "0.29"
+     },
+     {
+      "code": "RDF303",
+      "score": "0.24"
+     },
+     {
+      "code": "RDF504",
+      "score": "0.21"
+     },
+     {
+      "code": "RDF507",
+      "score": "0.15"
+     },
+     {
+      "code": "RDF502",
+      "score": "0.09"
+     }
+    ]
+   },
+   {
+    "id": 874,
+    "div": [
+     {
+      "code": "RDF50",
+      "score": "0.72"
+     },
+     {
+      "code": "RDF30",
+      "score": "0.17"
+     },
+     {
+      "code": "RDF60",
+      "score": "0.11"
+     }
+    ],
+    "gr": [
+     {
+      "code": "RDF504",
+      "score": "0.32"
+     },
+     {
+      "code": "RDF505",
+      "score": "0.25"
+     },
+     {
+      "code": "RDF501",
+      "score": "0.22"
+     },
+     {
+      "code": "RDF509",
+      "score": "0.14"
+     },
+     {
+      "code": "RDF503",
+      "score": "0.07"
+     }
+    ]
+   }
+  ]
+ }
+}
