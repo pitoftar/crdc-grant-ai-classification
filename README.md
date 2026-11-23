@@ -1,5 +1,3 @@
-# Classification disciplinaire de projets financés
-
 ## Préambule
 
 Le présent dépôt contient du code qui vise à effectuer une tâche de classification d'environ 2500 projets de recherche financés par l'un des trois grands conseils canadiens (CRSH, CRSNG et IRSC) dans le cadre d'un projet de recherche piloté par [Anton Boudreau Ninkov](https://ebsi.umontreal.ca/repertoire-ecole/professeurs/professeur/in/in34831/sg/Anton%20Boudreau%20Ninkov/).
@@ -8,6 +6,70 @@ Les projets doivent être classés selon les catégories du deuxième palier (gr
 
 Une première tâche de classification avait été effectuée à l'été 2025 à l'aide de grands modèles de langage (LLM) en ligne (ChatGPT).
 Cette méthode avait produit des résultats intéressants, mais avait été jugée améliorable en raison du manque de tracabilité et de reproductibilité de la sortie.
+Nous avons donc exploré deux autres solutions :
+
+1. Une classification à l'aide de plus petits modèles de langage (<1 millard de paramètres) spécialisés dans la classification ;
+2. Une classification à l'aide de modèle généralistes disponibles en ligne à partir de l'API.
+
+## Structure du dépôt
+
+```
+.
+├── api_calls
+│   ├── api_data
+│   ├── api_raw
+│   │   ├── batch_0000.json
+│   │   ├── ...
+│   │   └── batch_0040.json
+│   └── gpt-luna_api.py
+├── classification
+│   ├── basic_pipeline.py
+│   ├── fr_test_pipeline.py
+│   ├── models.txt
+│   ├── pipeline_config.py
+│   └── snapshot.py
+├── data
+├── out
+│   ├── div_multilabel_refined_w_subclass
+│   │   ├── cross-encoder-nli-deberta-v3-base
+│   │   ├── facebook-bart-large-mnli
+│   │   ├── log
+│   │   ├── MoritzLaurer-bge-m3-zeroshot-v2.0
+│   │   ├── MoritzLaurer-DeBERTa-v3-base-mnli-fever-anli
+│   │   ├── MoritzLaurer-deberta-v3-large-zeroshot-v2.0
+│   │   ├── MoritzLaurer-mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+│   │   └── MoritzLaurer-ModernBERT-large-zeroshot-v2.0
+│   ├── log
+│   └── models
+│       ├── cross-encoder-nli-deberta-v3-base
+│       ├── facebook-bart-large-mnli
+│       ├── MoritzLaurer-bge-m3-zeroshot-v2.0
+│       ├── MoritzLaurer-DeBERTa-v3-base-mnli-fever-anli
+│       ├── MoritzLaurer-deberta-v3-large-zeroshot-v2.0
+│       ├── MoritzLaurer-mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
+│       └── MoritzLaurer-ModernBERT-large-zeroshot-v2.0
+└── results
+    ├── experimental
+    ├── finet
+    ├── ltd
+    ├── ltd+finet
+    └── raw
+```
+
+Le dossier `api_calls` regroupe les programmes et résultats des appels à l'API d'OpenAI.
+Le sous-dossier `api_raw` est le dossier de cache contenant les réponses par batches de 25 projets.
+
+Le dossier `out` contient tous les fichiers de sortie produits pendant le développemement du script avec les modèles locaux.
+Ils sont classés par modèle, puis par date, puis par la méthode, et finalement par la taille du jeu de données utilisé (petit échantillon, moyen échantillon, jeu de données complet).
+
+Le dossier `results` ne contient que les fichiers qui correspondent à l'**itération la plus récente** de l'opération de classification.
+Les résultats sont classés par méthode, puis par modèle.
+Tous les fichiers de sortie présents dans ce dossier représentent le jeu de données complet.
+**Il n'y a qu'un résultat par méthode par modèle** dans ce dossier.
+
+Le sous-dossier `experimental` dans le dossier `results` correspond à une classification où les étiquettes disciplinaire sont enrichies à l'aide de leurs sous-classes, jugée moins précise.
+
+# Classification à l'aide de modèles locaux
 
 ## Avertissement
 
@@ -116,54 +178,6 @@ Le programme est écrit d'une manière à permettre une grande interchangeabilit
 
 À venir (un fichier `requirements.txt` doit être généré à partir du script de classification)
 
-## Structure du dépôt
-
-```
-.
-├── classification
-│   ├── basic_pipeline.py
-│   ├── fr_test_pipeline.py
-│   ├── models.txt
-│   ├── pipeline_config.py
-│   └── snapshot.py
-├── data
-├── out
-│   ├── div_multilabel_refined_w_subclass
-│   │   ├── cross-encoder-nli-deberta-v3-base
-│   │   ├── facebook-bart-large-mnli
-│   │   ├── log
-│   │   ├── MoritzLaurer-bge-m3-zeroshot-v2.0
-│   │   ├── MoritzLaurer-DeBERTa-v3-base-mnli-fever-anli
-│   │   ├── MoritzLaurer-deberta-v3-large-zeroshot-v2.0
-│   │   ├── MoritzLaurer-mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
-│   │   └── MoritzLaurer-ModernBERT-large-zeroshot-v2.0
-│   ├── log
-│   └── models
-│       ├── cross-encoder-nli-deberta-v3-base
-│       ├── facebook-bart-large-mnli
-│       ├── MoritzLaurer-bge-m3-zeroshot-v2.0
-│       ├── MoritzLaurer-DeBERTa-v3-base-mnli-fever-anli
-│       ├── MoritzLaurer-deberta-v3-large-zeroshot-v2.0
-│       ├── MoritzLaurer-mDeBERTa-v3-base-xnli-multilingual-nli-2mil7
-│       └── MoritzLaurer-ModernBERT-large-zeroshot-v2.0
-└── results
-    ├── experimental
-    ├── finet
-    ├── ltd
-    ├── ltd+finet
-    └── raw
-```
-
-Le dossier `out` contient tous les fichiers de sortie produits pendant le développemement du script.
-Ils sont classés par modèle, puis par date, puis par la méthode, et finalement par la taille du jeu de données utilisé (petit échantillon, moyen échantillon, jeu de données complet).
-
-Le dossier `results` ne contient que les fichiers qui correspondent à l'**itération la plus récente** de l'opération de classification.
-Les résultats sont classés par méthode, puis par modèle.
-Tous les fichiers de sortie présents dans ce dossier représentent le jeu de données complet.
-**Il n'y a qu'un résultat par méthode par modèle** dans ce dossier.
-
-Le sous-dossier `experimental` dans le dossier `results` correspond à une classification où les étiquettes disciplinaire sont enrichies à l'aide de leurs sous-classes, jugée moins précise.
-
 ## Problèmes connus
 
 ### Raffinement
@@ -186,3 +200,38 @@ Le sous-dossier `experimental` dans le dossier `results` correspond à une class
 - Lors de l'utilisation de la méthode expérimentale d'enrichissement des divisions et groupes par sous-classes, le fichier de sortie n'est pas propre et donne les catégories fournies au modèle plutôt que les catégories abrégées : i. e. « `div` (includes `scls`, `scls`, `scls`...) » plutôt que « `div` ». Cette erreur est probablement dûe à une mauvaise association entre les catégories données en entrée au modèle et le dictionnaire utilisé pour faire l'association entre celles-ci et les catégories à afficher en sortie.
 - Les fichiers de sortie sont actuellement organisés selon le modèle utilisé pour la classification. Il ne s'agit peut-être pas de la méthode la plus pratique ou souhaitable pour la réutilisation des données. Une nouvelle organisation a été réalisée manuellement dans le dossier `results` pour faciliter l'utilisation des fichiers de sortie pour l'analyse.
 - La production de la dernière version de la classification (dans le dossier `results`) n'est actuellement pas automatisée, alors qu'elle pourrait l'être.
+
+# Classification à l'aide de modèle généralistes _via_ API
+
+## Utilisation
+
+Il faut clôner le présent dépôt, se déplacer dans le dossier `api_calls` et exécuter le fichier `gpt-luna_api.py`.
+
+## Choix méthodologiques
+
+### Présupposés
+
+L'expérience a été réalisée avec les mêmes présupposés que pour la classification sans exemple :
+- Reproductibilité
+- Frugalité
+- Sortie structurée
+- Classification par groupes
+
+### Méthode
+
+Devant les résultats insatisfaisants obtenus à l'aide des modèles locaux, l'équipe de recherche a opté pour l'utilisation de modèles généralistes en ligne.
+Dans un premier temps, nous avons opté pour une classification à l'aide du modèle [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) d'OpenAI.
+Ce modèle a été sélectionné pour sa capacité à effectuer rapidement des tâches simples et répétitives, nécessitant peu de « raisonnement », et en raison de son coût faible pour effectuer les premiers tests.
+
+#### Classification
+
+Afin que les résultats obtenus _via_ l'API soient comparables à ceux obtenus à l'aide de modèles de language locaux, la logique priorisée lors du travail devait être exactement la même que celle employée dans la chaîne de classification sans exemple brute (`raw`).
+
+Les projets étaient donc classifiés en fonction de leur titre d'abord, puis de leur comité.
+Puisqu'il n'y avait pas de moyen d'indiquer explicitement l'importance du titre par rapport au comité lors du classement par les modèles locaux, les comités avaient été indiqués entre parenthèses.
+Lors de la classification par API, le titre et le comité des projets ont été fournis sur une même ligne.
+Ces derniers ont été explicitement indiqués comme représentant un « indice » de la catégorie, et non une limite dure.
+
+Une catégorisation de certitude a été demandée au modèle afin d'offrir un comparatif aux scores d'assentiment produits par les modèles locaux de ZSC.
+
+[...] à compléter
